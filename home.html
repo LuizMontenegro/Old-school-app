@@ -70,7 +70,7 @@
           </span>
           <div>
             <h1 class="title-font text-3xl md:text-5xl text-white tracking-wide">OLD SCHOOL GYM</h1>
-            <p class="text-sm text-gray-400 -mt-1">Gestor • Progressão • Sessões</p>
+            <p id="userWelcome" class="text-sm text-gray-300 mt-1 font-medium"></p>
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-2">
@@ -1062,10 +1062,74 @@
     // ---------- Utils ----------
     function cssEscape(id){ return id.replace(/[^a-zA-Z0-9_-]/g,'_') }
 
+    function displayUserInfo() {
+      const userWelcome = document.getElementById('userWelcome');
+      
+      if (!userWelcome) {
+        console.log('Elemento userWelcome não encontrado');
+        return;
+      }
+      
+      // Verificar dados do usuário logado
+      const loggedUser = localStorage.getItem('osg.user.logged');
+      if (loggedUser) {
+        try {
+          const userData = JSON.parse(loggedUser);
+          if (userData.email) {
+            userWelcome.textContent = `Bem-vindo(a), ${userData.email}!`;
+            console.log('Exibindo usuário logado:', userData.email);
+            return;
+          }
+        } catch (e) {
+          console.log('Erro ao processar dados do usuário logado:', e);
+        }
+      }
+      
+      // Verificar dados das preferências do onboarding
+      const prefsData = localStorage.getItem('osg.prefs.v1');
+      if (prefsData) {
+        try {
+          const prefs = JSON.parse(prefsData);
+          if (prefs.profileName && prefs.profileName.trim()) {
+            userWelcome.textContent = `Bem-vindo(a), ${prefs.profileName}!`;
+            console.log('Exibindo usuário do onboarding (prefs):', prefs.profileName);
+            return;
+          }
+        } catch (e) {
+          console.log('Erro ao processar dados das preferências:', e);
+        }
+      }
+      
+      // Verificar dados do onboarding (versão antiga)
+      const onboardData = localStorage.getItem('osg.onboard.v1');
+      if (onboardData) {
+        try {
+          const data = JSON.parse(onboardData);
+          if (data.profileName) {
+            userWelcome.textContent = `Bem-vindo(a), ${data.profileName}!`;
+            console.log('Exibindo usuário do onboarding (legacy):', data.profileName);
+            return;
+          }
+          if (data.goals && data.goals.length > 0) {
+            userWelcome.textContent = `Bem-vindo(a)! Objetivos: ${data.goals.join(', ')}`;
+            console.log('Exibindo objetivos do onboarding:', data.goals);
+            return;
+          }
+        } catch (e) {
+          console.log('Erro ao processar dados do onboarding:', e);
+        }
+      }
+      
+      // Fallback padrão
+      userWelcome.textContent = 'Bem-vindo(a) ao Old School Gym!';
+      console.log('Exibindo mensagem padrão');
+    }
+
     // ---------- Init ----------
     load();
     applyAccessibility();
     updateUnitUI();
+    displayUserInfo();
     renderMeus();
     renderLibrary();
     renderSessions();
@@ -1090,5 +1154,5 @@
     // Redesenhar mini-gráficos ao redimensionar
     let resizeTimer; window.addEventListener('resize', ()=>{ clearTimeout(resizeTimer); resizeTimer=setTimeout(()=> renderMeus(), 200) });
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'980318d591aa0d0b',t:'MTc1ODA1NDM2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
