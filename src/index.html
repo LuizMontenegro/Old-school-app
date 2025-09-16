@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Old School Gym — Onboarding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0a0a0a; --primary:#ef4444; --accent:#f59e0b; --ink:#f3f4f6; --muted:#9ca3af;
+      --card:#111214; --edge:#1f1f22; --ok:#22c55e; --info:#38bdf8;
+    }
+    *{ box-sizing: border-box }
+    html, body { height: 100% }
+    body{
+      background-color:#0a0a0a;
+      background-image:
+        radial-gradient(1200px 600px at -10% -10%, rgba(239,68,68,0.06), transparent 60%),
+        radial-gradient(900px 500px at 110% 110%, rgba(245,158,11,0.08), transparent 60%),
+        radial-gradient(800px 400px at 50% 0%, rgba(56,189,248,0.06), transparent 60%),
+        linear-gradient(180deg, #0a0a0a 0%, #0f1115 100%);
+      background-attachment: fixed, fixed, fixed, fixed;
+      color:var(--ink);
+      font-family:'Oswald', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    .title-font{ font-family:'Bebas Neue', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif; letter-spacing:.5px }
+    .card{ background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0)), var(--card); border:1px solid var(--edge); border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.03) }
+    .chip{ border:1px solid var(--edge); background:#141518; color:var(--muted) }
+    .btn{ transition: transform .2s ease, background-color .2s ease, box-shadow .2s ease, color .2s ease, border-color .2s ease }
+    .btn:active{ transform: translateY(1px) scale(.99) }
+    .ring-glow{ box-shadow: 0 0 0 3px rgba(239,68,68,.25) }
+    .progress-bar{
+      height: 8px; border-radius: 999px; overflow: hidden; background: #17181b; border:1px solid var(--edge)
+    }
+    .progress-fill{
+      height:100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      width:0%;
+      transition: width .3s ease;
+      box-shadow: 0 6px 24px rgba(239,68,68,.25);
+    }
+    .kettlebell{ width: 40px; height: 40px; display: inline-block }
+    .grid-lines{
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .step-enter{ opacity:0; transform: translateY(8px); }
+    .step-show{ opacity:1; transform: none; transition: opacity .25s ease, transform .25s ease; }
+  </style>
+</head>
+<body class="grid-lines flex items-center justify-center p-5">
+  <main class="w-full max-w-3xl">
+    <header class="flex items-center justify-center gap-3 mb-6">
+      <span class="kettlebell" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ef4444"/><stop offset="1" stop-color="#f59e0b"/></linearGradient></defs>
+          <path d="M18 26a14 14 0 1 1 28 0v6H18v-6z" stroke="url(#g1)" stroke-width="4"/>
+          <rect x="10" y="30" width="44" height="28" rx="12" fill="url(#g1)" opacity=".18" stroke="#ef4444" stroke-width="2"/>
+          <circle cx="20" cy="44" r="6" fill="#ef4444" opacity=".6"/>
+          <circle cx="44" cy="44" r="6" fill="#f59e0b" opacity=".6"/>
+        </svg>
+      </span>
+      <div class="text-center">
+        <h1 class="title-font text-4xl md:text-5xl text-white tracking-wide">OLD SCHOOL GYM</h1>
+        <p class="text-sm text-gray-400 -mt-1">Onboarding • Preferências • Seed data</p>
+      </div>
+    </header>
+
+    <section class="card p-5 md:p-7">
+      <!-- progress -->
+      <div class="progress-bar mb-6"><div id="progressFill" class="progress-fill"></div></div>
+
+      <!-- steps -->
+      <div id="stepsWrap" class="space-y-6">
+        <!-- Step 1 -->
+        <div id="step1" class="step-enter step-show">
+          <h2 class="title-font text-2xl mb-2">1) Como você quer ver os pesos?</h2>
+          <p class="text-gray-400 text-sm mb-4">Escolha a unidade preferida. Você pode mudar depois.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label class="chip flex items-center justify-between px-4 py-3 rounded-lg cursor-pointer hover:bg-white/5">
+              <div class="flex items-center gap-3">
+                <span class="text-xl">⚖️</span>
+                <div>
+                  <div class="text-gray-100">Quilogramas (kg)</div>
+                  <div class="text-xs text-gray-400">Padrão no Brasil</div>
+                </div>
+              </div>
+              <input type="radio" name="unit" value="kg" class="accent-yellow-400" checked>
+            </label>
+            <label class="chip flex items-center justify-between px-4 py-3 rounded-lg cursor-pointer hover:bg-white/5">
+              <div class="flex items-center gap-3">
+                <span class="text-xl">🏋️‍♂️</span>
+                <div>
+                  <div class="text-gray-100">Libras (lb)</div>
+                  <div class="text-xs text-gray-400">Com conversão automática</div>
+                </div>
+              </div>
+              <input type="radio" name="unit" value="lb" class="accent-yellow-400">
+            </label>
+          </div>
+          <div class="mt-5 flex items-center justify-between">
+            <div></div>
+            <button id="next1" class="btn bg-red-600 hover:bg-red-500 text-white px-5 py-2 rounded-md">Continuar</button>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div id="step2" class="hidden step-enter">
+          <h2 class="title-font text-2xl mb-2">2) Quais são seus objetivos?</h2>
+          <p class="text-gray-400 text-sm mb-4">Isso ajuda a ajustar sugestões e análises.</p>
+          <div class="flex flex-wrap gap-2">
+            <button class="btn chip px-3 py-2 rounded" data-goal="força">Força</button>
+            <button class="btn chip px-3 py-2 rounded" data-goal="hipertrofia">Hipertrofia</button>
+            <button class="btn chip px-3 py-2 rounded" data-goal="resistência">Resistência</button>
+            <button class="btn chip px-3 py-2 rounded" data-goal="performance">Performance</button>
+            <button class="btn chip px-3 py-2 rounded" data-goal="saúde">Saúde</button>
+          </div>
+          <div class="mt-5 flex items-center justify-between">
+            <button class="btn px-5 py-2 rounded-md border border-gray-600/60 text-gray-200 hover:bg-white/5" data-prev="2">Voltar</button>
+            <button class="btn bg-red-600 hover:bg-red-500 text-white px-5 py-2 rounded-md" data-next="2">Continuar</button>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div id="step3" class="hidden step-enter">
+          <h2 class="title-font text-2xl mb-2">3) Seus grupos favoritos</h2>
+          <p class="text-gray-400 text-sm mb-4">Usaremos isso pra sugerir seus primeiros aparelhos.</p>
+          <div class="flex flex-wrap gap-2">
+            <button class="btn chip px-3 py-2 rounded" data-group="Peito">Peito</button>
+            <button class="btn chip px-3 py-2 rounded" data-group="Costas">Costas</button>
+            <button class="btn chip px-3 py-2 rounded" data-group="Pernas">Pernas</button>
+            <button class="btn chip px-3 py-2 rounded" data-group="Ombros">Ombros</button>
+            <button class="btn chip px-3 py-2 rounded" data-group="Bíceps">Bíceps</button>
+            <button class="btn chip px-3 py-2 rounded" data-group="Tríceps">Tríceps</button>
+            <button class="btn chip px-3 py-2 rounded" data-group="Core">Core</button>
+          </div>
+
+          <div class="mt-6 grid gap-3">
+            <div class="text-gray-300 text-sm">Nome do seu perfil (opcional)</div>
+            <input id="profileName" type="text" class="w-full px-3 py-2 rounded-md bg-[#0c0d0f] border border-[color:var(--edge)] focus:outline-none focus:ring-2 focus:ring-red-600" placeholder="Ex: João • Treino 2025">
+          </div>
+
+          <div class="mt-6 p-4 rounded-lg border border-[color:var(--edge)] bg-[#0b0c0e]">
+            <div class="text-sm text-gray-300 mb-2">Seed data (recomendado)</div>
+            <p class="text-xs text-gray-400 mb-3">Vamos criar 3 aparelhos iniciais para você não começar do zero. Você pode remover depois.</p>
+            <div class="flex items-center gap-2">
+              <label class="flex items-center gap-2 cursor-pointer"><input id="seedToggle" type="checkbox" class="accent-yellow-400" checked> Criar aparelhos iniciais</label>
+            </div>
+          </div>
+
+          <div class="mt-5 flex items-center justify-between">
+            <button class="btn px-5 py-2 rounded-md border border-gray-600/60 text-gray-200 hover:bg-white/5" data-prev="3">Voltar</button>
+            <button id="finish" class="btn bg-red-600 hover:bg-red-500 text-white px-5 py-2 rounded-md">Concluir & Entrar</button>
+          </div>
+        </div>
+
+        <!-- Step Done -->
+        <div id="stepDone" class="hidden step-enter">
+          <div class="flex items-center gap-3 mb-2">
+            <span class="text-3xl">✅</span>
+            <h2 class="title-font text-2xl">Tudo pronto!</h2>
+          </div>
+          <p class="text-gray-300">Suas preferências foram salvas no navegador e os aparelhos iniciais foram criados.</p>
+          <ul class="text-sm text-gray-400 list-disc ml-5 mt-3">
+            <li>Unidade de peso ajustada</li>
+            <li>Objetivos e grupos favoritos salvos</li>
+            <li>Aparelhos iniciais criados (se você marcou)</li>
+          </ul>
+          <div class="mt-5 flex items-center justify-between">
+            <button id="restart" class="btn px-5 py-2 rounded-md border border-gray-600/60 text-gray-200 hover:bg-white/5">Refazer</button>
+            <button id="goApp" class="btn bg-green-600 hover:bg-green-500 text-white px-5 py-2 rounded-md">Entrar no app</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="text-center text-gray-500 text-xs mt-4">
+      Tudo é salvo localmente no seu navegador. Sem login, sem senha.
+    </footer>
+  </main>
+
+  <script>
+    // Chaves compatíveis com o app
+    const PREF_KEY = 'osg.prefs.v1';
+    const EXS_KEY = 'osg.exercises.v3';
+    const ONB_KEY = 'osg.onboard.v1';
+
+    // Biblioteca base para seeds
+    const LIB = [
+      {name:'Supino reto', group:'Peito', color:'#ef4444'},
+      {name:'Puxada frente', group:'Costas', color:'#22d3ee'},
+      {name:'Agachamento livre', group:'Pernas', color:'#a3e635'},
+      {name:'Leg press', group:'Pernas', color:'#84cc16'},
+      {name:'Desenvolvimento militar', group:'Ombros', color:'#f43f5e'},
+      {name:'Rosca direta', group:'Bíceps', color:'#a855f7'},
+      {name:'Tríceps corda', group:'Tríceps', color:'#f9a8d4'},
+      {name:'Abdominal máquina', group:'Core', color:'#14b8a6'}
+    ];
+
+    // Utilidades
+    function uid(){ return Math.random().toString(36).slice(2) + Date.now().toString(36) }
+    function svgPlaceholder(text, c1='#ef4444'){
+      const initials = text.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+      const svg = `
+        <svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'>
+          <defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='${c1}'/><stop offset='1' stop-color='#f59e0b'/></linearGradient></defs>
+          <rect width='100%' height='100%' rx='24' fill='#0b0b0c'/>
+          <rect x='12' y='12' width='232' height='232' rx='20' fill='url(#g)' opacity='0.2' stroke='${c1}' stroke-opacity='0.5'/>
+          <text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Oswald, Arial' font-size='88' fill='white' fill-opacity='0.9'>${initials}</text>
+        </svg>`;
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+    function savePrefs(p){ localStorage.setItem(PREF_KEY, JSON.stringify(p)) }
+    function saveExercises(list){ localStorage.setItem(EXS_KEY, JSON.stringify(list)) }
+    function markOnboardDone(){ localStorage.setItem(ONB_KEY, JSON.stringify(true)) }
+
+    // Estado do onboarding
+    let step = 1;
+    let prefs = { unit:'kg', goals:[], favGroups:[], profileName:'' };
+
+    const el = sel => document.querySelector(sel);
+    const progressFill = el('#progressFill');
+    const stepEls = [null, el('#step1'), el('#step2'), el('#step3'), el('#stepDone')];
+
+    function updateProgress(){
+      const map = {1: 25, 2: 60, 3: 90, 4: 100};
+      progressFill.style.width = (map[step] || 0) + '%';
+    }
+    function showStep(n){
+      stepEls.forEach((node, idx)=>{
+        if(!node || idx===0) return;
+        if(idx===n){
+          node.classList.remove('hidden');
+          // trigger animation
+          requestAnimationFrame(()=> node.classList.add('step-show'));
+        }else{
+          node.classList.add('hidden');
+          node.classList.remove('step-show');
+        }
+      });
+      step = n;
+      updateProgress();
+    }
+
+    // Step 1
+    el('#next1').onclick = ()=>{
+      const unit = document.querySelector('input[name="unit"]:checked')?.value || 'kg';
+      prefs.unit = unit;
+      showStep(2);
+    };
+
+    // Step 2 goals selection
+    document.querySelectorAll('[data-goal]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const v = btn.getAttribute('data-goal');
+        const i = prefs.goals.indexOf(v);
+        if(i>=0){ prefs.goals.splice(i,1); btn.classList.remove('ring-glow'); }
+        else { prefs.goals.push(v); btn.classList.add('ring-glow'); }
+      });
+    });
+    document.querySelector('[data-next="2"]').onclick = ()=> showStep(3);
+    document.querySelector('[data-prev="2"]').onclick = ()=> showStep(1);
+
+    // Step 3 groups selection
+    document.querySelectorAll('[data-group]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const v = btn.getAttribute('data-group');
+        const i = prefs.favGroups.indexOf(v);
+        if(i>=0){ prefs.favGroups.splice(i,1); btn.classList.remove('ring-glow'); }
+        else { prefs.favGroups.push(v); btn.classList.add('ring-glow'); }
+      });
+    });
+    document.querySelector('[data-prev="3"]').onclick = ()=> showStep(2);
+
+    // Finish
+    el('#finish').onclick = ()=>{
+      prefs.profileName = el('#profileName').value.trim();
+      savePrefs(Object.assign({contrast:false, large:false}, prefs));
+      const doSeed = el('#seedToggle').checked;
+
+      // seed data
+      let exercises = [];
+      if(doSeed){
+        const picked = pickSeeds(prefs.favGroups);
+        const now = Date.now();
+        picked.forEach(s=>{
+          exercises.push({
+            id: uid(),
+            name: s.name,
+            group: s.group,
+            photo: svgPlaceholder(s.name, s.color),
+            plan: 'linear',
+            history: [], createdAt: now
+          });
+        });
+      }
+      saveExercises(exercises);
+      markOnboardDone();
+      showStep(4);
+    };
+
+    // Restart onboarding
+    el('#restart').onclick = ()=>{
+      prefs = { unit:'kg', goals:[], favGroups:[], profileName:'' };
+      document.querySelector('input[name="unit"][value="kg"]').checked = true;
+      document.querySelectorAll('[data-goal]').forEach(b=> b.classList.remove('ring-glow'));
+      document.querySelectorAll('[data-group]').forEach(b=> b.classList.remove('ring-glow'));
+      el('#profileName').value = '';
+      el('#seedToggle').checked = true;
+      showStep(1);
+    };
+
+    // "Entrar no app"
+    el('#goApp').onclick = ()=>{
+      // Redireciona para a página home após completar o onboarding
+      window.location.href = '../home.html';
+    };
+
+    // Seeds: escolhe 3 baseados nos favoritos; se vazio, usa padrão
+    function pickSeeds(favs){
+      const pool = favs && favs.length ? LIB.filter(x=> favs.includes(x.group)) : LIB;
+      const arr = [...pool];
+      shuffle(arr);
+      return arr.slice(0, Math.min(3, arr.length));
+    }
+    function shuffle(a){
+      for(let i=a.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [a[i],a[j]]=[a[j],a[i]];
+      }
+    }
+
+    // Init
+    showStep(1);
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98031d52e630db90',t:'MTc1ODA1NDU1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
