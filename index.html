@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Old School Gym – Pro</title>
+  <link href="/src/style.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0a0a0a; --primary:#ef4444; --accent:#f59e0b; --ink:#f3f4f6; --muted:#9ca3af;
+      --card:#111214; --edge:#1f1f22; --good:#22c55e; --info:#38bdf8; --warn:#fbbf24;
+    }
+    *{ box-sizing:border-box }
+    body{
+      /* Fallback sólido para qualquer navegador */
+      background-color: #0a0a0a;
+      /* Degradê escuro elegante com nuances e compatível amplamente */
+      background-image:
+        radial-gradient(1200px 600px at -10% -10%, rgba(239,68,68,0.06), transparent 60%),
+        radial-gradient(900px 500px at 110% 110%, rgba(245,158,11,0.08), transparent 60%),
+        radial-gradient(800px 400px at 50% 0%, rgba(56,189,248,0.06), transparent 60%),
+        linear-gradient(180deg, #0a0a0a 0%, #0f1115 100%);
+      background-repeat: no-repeat;
+      background-attachment: fixed, fixed, fixed, fixed; /* evita branco ao rolar */
+      color:var(--ink);
+      font-family:'Oswald', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      min-height:100dvh;
+    }
+    .title-font{ font-family:'Bebas Neue', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif; letter-spacing:.5px }
+    .grid-lines{
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size:24px 24px;
+    }
+    .card{ background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0)), var(--card); border:1px solid var(--edge); border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.03) }
+    .btn{ transition:transform .2s ease, background-color .2s ease, box-shadow .2s ease, color .2s ease, border-color .2s ease; }
+    .btn:active{ transform:translateY(1px) scale(.99) }
+    .chip{ border:1px solid var(--edge); background:#141518; color:var(--muted) }
+    .img-frame{ background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.06), transparent 40%), #0b0b0c; border:1px solid var(--edge); border-radius:12px }
+    .modal-backdrop{ background: radial-gradient(600px 400px at 50% -10%, rgba(239,68,68,.12), transparent 60%), rgba(0,0,0,.65); backdrop-filter: blur(6px) }
+    .scrim{ background: linear-gradient(180deg, rgba(239,68,68,.12), transparent 45%) }
+    .tab{ position:relative; transition: color .2s ease }
+    .tab[data-active="true"]{ color:#fff }
+    .tab[data-active="true"]::after{ content:''; position:absolute; left:10px; right:10px; bottom:-12px; height:3px; border-radius:3px; background:linear-gradient(90deg,var(--primary),var(--accent)); box-shadow:0 4px 18px rgba(239,68,68,.35) }
+    .badge-pr{ background:linear-gradient(180deg, rgba(250,204,21,.18), rgba(250,204,21,.08)); border:1px solid rgba(250,204,21,.45); color:#fde68a }
+    .ring-raw{ box-shadow: inset 0 0 0 1px rgba(239,68,68,.35), 0 8px 30px rgba(239,68,68,.08) }
+    .focus-vis:focus{ outline:3px solid #38bdf8; outline-offset:2px }
+    .high-contrast body, .high-contrast .card{ filter: contrast(1.1) }
+    .large-font body{ font-size: 18px }
+    .menu{ z-index:60 }
+  </style>
+</head>
+<body class="grid-lines">
+  <header class="px-5 md:px-10 pt-6 pb-3">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <span aria-hidden="true" class="w-8 h-8">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ef4444"/><stop offset="1" stop-color="#f59e0b"/></linearGradient></defs>
+              <path d="M18 26a14 14 0 1 1 28 0v6H18v-6z" stroke="url(#g1)" stroke-width="4"/>
+              <rect x="10" y="30" width="44" height="28" rx="12" fill="url(#g1)" opacity=".18" stroke="#ef4444" stroke-width="2"/>
+              <circle cx="20" cy="44" r="6" fill="#ef4444" opacity=".6"/>
+              <circle cx="44" cy="44" r="6" fill="#f59e0b" opacity=".6"/>
+            </svg>
+          </span>
+          <div>
+            <h1 class="title-font text-3xl md:text-5xl text-white tracking-wide">OLD SCHOOL GYM</h1>
+            <p class="text-sm text-gray-400 -mt-1">Gestor • Progressão • Sessões</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="chip px-2 py-1 rounded text-xs flex items-center gap-1" role="group" aria-label="Unidade de peso">
+            Unidade:
+            <button id="unitKg" class="btn px-2 py-0.5 rounded border border-gray-600/60 text-gray-200 hover:bg-white/5 focus-vis">KG</button>
+            <button id="unitLb" class="btn px-2 py-0.5 rounded border border-gray-600/60 text-gray-200 hover:bg-white/5 focus-vis">LB</button>
+          </div>
+          <div class="chip px-2 py-1 rounded text-xs flex items-center gap-2" aria-label="Acessibilidade">
+            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="toggleContrast" class="accent-yellow-400"/> Alto Contraste</label>
+            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="toggleLargeFont" class="accent-yellow-400"/> Fonte Grande</label>
+          </div>
+          <button id="addExerciseBtn" class="btn ring-raw bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg uppercase tracking-wide text-sm md:text-base focus-vis" aria-label="Adicionar novo aparelho">
+            + Novo Aparelho
+          </button>
+        </div>
+      </div>
+      <div class="mt-6 flex items-center gap-6 border-b border-[color:var(--edge)]">
+        <button class="tab pb-3 text-gray-300 hover:text-white focus-vis" data-tab="meus" data-active="true" aria-controls="viewMeus">Meus Aparelhos</button>
+        <button class="tab pb-3 text-gray-300 hover:text-white focus-vis" data-tab="biblioteca" aria-controls="viewBiblioteca">Biblioteca</button>
+        <button class="tab pb-3 text-gray-300 hover:text-white focus-vis" data-tab="sessoes" aria-controls="viewSessoes">Sessões</button>
+        <button class="tab pb-3 text-gray-300 hover:text-white focus-vis" data-tab="analise" aria-controls="viewAnalise">Análises</button>
+        <div class="ml-auto flex items-center gap-2">
+          <div class="relative">
+            <input id="globalSearch" class="focus-vis bg-[#0b0c0e] border border-[color:var(--edge)] rounded pl-8 pr-3 py-2 text-sm w-56" placeholder="Buscar ( / )" aria-label="Buscar exercícios"/>
+            <span class="absolute left-2 top-2.5 text-gray-500">🔎</span>
+          </div>
+          <button id="exportCsvBtn" class="btn px-3 py-2 rounded-md border border-yellow-600/50 text-yellow-200 hover:bg-yellow-600/10 focus-vis">Exportar CSV</button>
+          <button id="backupBtn" class="btn px-3 py-2 rounded-md border border-yellow-600/50 text-yellow-200 hover:bg-yellow-600/10 focus-vis">Exportar JSON</button>
+          <label class="btn px-3 py-2 rounded-md border border-sky-600/50 text-sky-200 hover:bg-sky-600/10 cursor-pointer focus-vis">
+            Importar JSON
+            <input id="importInput" type="file" accept="application/json" class="hidden" />
+          </label>
+          <button id="resetBtn" class="btn px-3 py-2 rounded-md border border-red-600/60 text-red-200 hover:bg-red-600/10 focus-vis">Limpar</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="px-5 md:px-10 pb-10">
+    <div class="max-w-7xl mx-auto">
+      <section class="hero card scrim p-4 md:p-6 mb-6 rounded-xl">
+        <div class="flex flex-col md:flex-row md:items-center gap-4 justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">💪</span>
+            <div>
+              <h2 class="title-font text-2xl">Painel Old School</h2>
+              <p class="text-sm text-gray-400">Onboarding rápido, sessões A/B/C, PRs e heatmap — tudo salvo no seu navegador.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="quickAddCTA" class="btn chip px-3 py-2 rounded-md hover:bg-white/5 focus-vis">+ Registrar rápido</button>
+            <button id="browseLibCTA" class="btn gold px-3 py-2 rounded-md hover:bg-yellow-600/10 focus-vis">Explorar Biblioteca</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Controles -->
+      <section id="controls" class="card p-4 mb-5 flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-2">
+          <label class="text-sm text-gray-300">Grupo:</label>
+          <select id="filterGroup" class="bg-[#0c0d0f] border border-[color:var(--edge)] rounded px-2 py-1 text-sm focus-vis" aria-label="Filtrar por grupo">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-sm text-gray-300">Ordenar por:</label>
+          <select id="sortBy" class="bg-[#0c0d0f] border border-[color:var(--edge)] rounded px-2 py-1 text-sm focus-vis" aria-label="Ordenar">
+            <option value="recent">Mais recentes</option>
+            <option value="most">Mais usados</option>
+            <option value="name">Nome</option>
+            <option value="best">Recorde</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Meus -->
+      <section id="viewMeus" class="grid gap-5 md:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3" aria-live="polite"></section>
+
+      <!-- Biblioteca -->
+      <section id="viewBiblioteca" class="hidden space-y-6">
+        <div class="text-gray-300 text-sm">Selecione uma máquina pronta e clique em “Adicionar”.</div>
+        <div id="libraryGrid" class="grid gap-5 md:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"></div>
+      </section>
+
+      <!-- Sessões -->
+      <section id="viewSessoes" class="hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="card p-4 space-y-3">
+            <h3 class="title-font text-xl">Planos A/B/C</h3>
+            <div class="text-sm text-gray-400">Crie suas sessões. Arraste para ordenar (simples: setas).</div>
+            <div id="sessionsList" class="space-y-3"></div>
+            <button id="addSessionBtn" class="btn ok px-3 py-2 rounded-md hover:bg-green-600/10 w-full focus-vis">+ Nova sessão</button>
+          </div>
+          <div class="card p-4 space-y-3 lg:col-span-2">
+            <h3 class="title-font text-xl">Sessão do dia</h3>
+            <div class="flex items-center gap-2">
+              <select id="selectSessionRun" class="bg-[#0c0d0f] border border-[color:var(--edge)] rounded px-2 py-1 text-sm focus-vis"></select>
+              <button id="startSessionBtn" class="btn bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded-md focus-vis">Iniciar</button>
+              <button id="finishSessionBtn" class="btn px-3 py-2 rounded-md border border-gray-600/60 text-gray-200 hover:bg-white/5 focus-vis" disabled>Concluir</button>
+              <button id="shareSessionBtn" class="btn gold px-3 py-2 rounded-md hover:bg-yellow-600/10 focus-vis" disabled>Compartilhar resumo</button>
+            </div>
+            <div id="runSessionArea" class="grid gap-3"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Análises -->
+      <section id="viewAnalise" class="hidden space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="card p-4">
+            <h3 class="title-font text-xl mb-2">Heatmap Mensal</h3>
+            <canvas id="heatmapCanvas" height="240" class="w-full bg-[#0b0c0e] border border-[color:var(--edge)] rounded"></canvas>
+            <div id="streakBox" class="text-sm text-gray-300 mt-2">Streak atual: 0 dias</div>
+          </div>
+          <div class="card p-4 md:col-span-2">
+            <h3 class="title-font text-xl mb-2">PRs Recentes</h3>
+            <div id="prsList" class="grid gap-2"></div>
+            <button id="sharePRBtn" class="btn gold mt-3 px-3 py-2 rounded hover:bg-yellow-600/10 focus-vis">Compartilhar PR selecionado</button>
+            <select id="selectPR" class="bg-[#0c0d0f] border border-[color:var(--edge)] rounded px-2 py-1 text-sm ml-2 focus-vis"></select>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Modal Add/Edit Aparelho -->
+  <div id="modalAdd" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end sm:items-center justify-center p-4" aria-modal="true" role="dialog" aria-label="Adicionar Aparelho">
+    <div class="card w-full max-w-lg overflow-hidden">
+      <div class="p-5 md:p-6 border-b border-[color:var(--edge)] flex items-center justify-between">
+        <h3 class="title-font text-2xl">Adicionar Aparelho</h3>
+        <button class="btn text-gray-300 hover:text-white focus-vis" data-close-modal="modalAdd" aria-label="Fechar">✕</button>
+      </div>
+      <div class="p-5 md:p-6 space-y-4">
+        <div class="flex items-center gap-4">
+          <div class="img-frame w-24 h-24 rounded-xl overflow-hidden flex items-center justify-center">
+            <img id="previewAdd" alt="Prévia do aparelho" class="w-full h-full object-cover hidden"/>
+            <div id="previewAddFallback" class="text-gray-500 text-xs text-center px-2">Sem foto</div>
+          </div>
+          <label class="btn px-3 py-2 rounded-md border border-gray-600/60 text-gray-200 hover:bg-white/5 cursor-pointer focus-vis">
+            Selecionar foto
+            <input id="inputPhotoAdd" type="file" accept="image/*" class="hidden"/>
+          </label>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-300 mb-1">Nome do aparelho</label>
+          <input id="inputNameAdd" type="text" placeholder="Ex: Supino reto" class="focus-vis w-full px-3 py-2 rounded-md bg-[#0c0d0f] border border-[color:var(--edge)]"/>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm text-gray-300 mb-1">Carga inicial (kg)</label>
+            <input id="inputStartWeight" type="number" inputmode="decimal" class="focus-vis ghost-input w-full px-3 py-2 rounded-md bg-[#0c0d0f] border border-[color:var(--edge)]" placeholder="Opcional"/>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-300 mb-1">Grupo muscular</label>
+            <input id="inputGroupAdd" type="text" class="focus-vis w-full px-3 py-2 rounded-md bg-[#0c0d0f] border border-[color:var(--edge)]" placeholder="Ex: Peito"/>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-300 mb-1">Plano de progressão</label>
+          <select id="inputPlan" class="focus-vis w-full px-3 py-2 rounded-md bg-[#0c0d0f] border border-[color:var(--edge)]">
+            <option value="linear">Linear +2,5 kg</option>
+            <option value="double">Duplo progresso (reps→peso)</option>
+            <option value="531">5/3/1 lite</option>
+          </select>
+        </div>
+      </div>
+      <div class="p-5 md:p-6 border-t border-[color:var(--edge)] flex items-center justify-end gap-3">
+        <button class="btn px-4 py-2 rounded-md border border-gray-600/60 text-gray-300 hover:bg-white/5 focus-vis" data-close-modal="modalAdd">Cancelar</button>
+        <button id="saveAdd" class="btn bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-md focus-vis">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Registrar Carga -->
+  <div id="modalLog" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end sm:items-center justify-center p-4" aria-modal="true" role="dialog" aria-label="Registrar Carga">
+    <div class="card w-full max-w-md overflow-hidden">
+      <div class="p-5 md:p-6 border-b border-[color:var(--edge)] flex items-center justify-between">
+        <h3 class="title-font text-2xl">Registrar Carga</h3>
+        <button class="btn text-gray-300 hover:text-white focus-vis" data-close-modal="modalLog" aria-label="Fechar">✕</button>
+      </div>
+      <div class="p-5 md:p-6 space-y-3">
+        <div class="text-sm text-gray-300" id="suggestionBox">Sugestão: —</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm text-gray-300 mb-1">Peso (<span id="logUnitLabel">kg</span>)</label>
+            <input id="inputWeight" type="number" inputmode="decimal" class="focus-vis ghost-input w-full px-3 py-2 rounded-md bg-[#0c0d0f] border border-[color:var(--edge)]" placeholder="Ex: 40"/>
+            <div id="weightHelper" class="text-[11px] text-gray-400 mt-1"></div>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-300 mb-1">Reps</label>
+            <input id="inputReps" type="number" inputmode="numeric" class="focus-vis ghost-input w-full px-3 py-2 rounded-md bg-[#0c0d0f] border border-[color:var(--edge)]" placeholder="Ex: 8"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm text-gray-300 mb-1">RPE (1–10)</label>
+            <input id="inputRPE" type="number" inputmode="decimal" step="0.5" min="1" max="10" class="focus-vis ghost-input w-full px-3 py-2 rounded-md bg-[#0c0d0f] border border-[color:var(--edge)]" placeholder="Ex: 8.5"/>
+          </div>
+          <div class="flex items-end">
+            <button id="btnUseLast" class="btn bg-sky-600 hover:bg-sky-500 text-white px-3 py-2 rounded-md w-full focus-vis">Usar último treino</button>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-300 mb-1">Observação</label>
+          <input id="inputNote" type="text" class="focus-vis w-full px-3 py-2 rounded-md bg-[#0c0d0f] border border-[color:var(--edge)]" placeholder="Ex: 3x10, bom controle"/>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <button class="btn chip px-2 py-1 rounded text-xs focus-vis" data-note="3×10">3×10</button>
+            <button class="btn chip px-2 py-1 rounded text-xs focus-vis" data-note="drop-set">drop-set</button>
+            <button class="btn chip px-2 py-1 rounded text-xs focus-vis" data-note="tempo 3-1-3">tempo 3-1-3</button>
+            <button class="btn chip px-2 py-1 rounded text-xs focus-vis" data-note="rest-pause">rest-pause</button>
+          </div>
+        </div>
+        <div class="text-xs text-gray-400">A data e o descanso serão registrados automaticamente.</div>
+      </div>
+      <div class="p-5 md:p-6 border-t border-[color:var(--edge)] flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2 text-xs text-gray-400">
+          <span>Descanso sugerido:</span>
+          <div class="chip px-2 py-1 rounded">90s</div>
+          <div class="chip px-2 py-1 rounded">120s</div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button class="btn px-4 py-2 rounded-md border border-gray-600/60 text-gray-300 hover:bg-white/5 focus-vis" data-close-modal="modalLog">Cancelar</button>
+          <button id="saveLog" class="btn bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-md focus-vis">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Progresso -->
+  <div id="modalChart" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end sm:items-center justify-center p-4" aria-modal="true" role="dialog" aria-label="Progresso">
+    <div class="card w-full max-w-3xl overflow-hidden">
+      <div class="p-5 md:p-6 border-b border-[color:var(--edge)] flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button class="btn gold px-3 py-1.5 rounded-md hover:bg-yellow-600/10 focus-vis" data-close-modal="modalChart">← Voltar</button>
+          <div class="w-12 h-12 img-frame rounded-lg overflow-hidden">
+            <img id="chartPhoto" alt="" class="w-full h-full object-cover hidden"/>
+          </div>
+          <div>
+            <h3 id="chartTitle" class="title-font text-2xl">Progresso</h3>
+            <p id="chartSub" class="text-sm text-gray-400">Histórico de cargas</p>
+          </div>
+        </div>
+        <button class="btn text-gray-300 hover:text-white focus-vis" data-close-modal="modalChart" aria-label="Fechar">✕</button>
+      </div>
+      <div class="p-5 md:p-6 space-y-4">
+        <div class="w-full bg-[#0b0c0e] border border-[color:var(--edge)] rounded-xl overflow-hidden">
+          <canvas id="progressCanvas" height="300"></canvas>
+        </div>
+        <div id="historyList" class="grid gap-2 max-h-56 overflow-auto pr-1"></div>
+      </div>
+      <div class="p-5 md:p-6 border-t border-[color:var(--edge)] flex items-center justify-between gap-3">
+        <button id="sharePRCardBtn" class="btn gold px-3 py-2 rounded-md hover:bg-yellow-600/10 focus-vis">Compartilhar PR deste aparelho</button>
+        <div class="flex items-center gap-2">
+          <button id="quickAddFromChart" class="btn chip px-4 py-2 rounded-md hover:bg-white/5 focus-vis">+ Registrar</button>
+          <button class="btn px-4 py-2 rounded-md border border-gray-600/60 text-gray-300 hover:bg-white/5 focus-vis" data-close-modal="modalChart">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Timer Descanso -->
+  <div id="modalRest" class="hidden fixed inset-0 z-[70] modal-backdrop flex items-end sm:items-center justify-center p-4" aria-modal="true" role="dialog" aria-label="Descanso">
+    <div class="card w-full max-w-md overflow-hidden">
+      <div class="p-4 border-b border-[color:var(--edge)] flex items-center justify-between">
+        <h3 class="title-font text-xl">Descanso</h3>
+        <button class="btn text-gray-300 hover:text-white focus-vis" id="closeRest">✕</button>
+      </div>
+      <div class="p-5 flex flex-col items-center gap-4">
+        <div id="restTime" class="title-font text-5xl tracking-wide">01:30</div>
+        <div class="flex items-center gap-2">
+          <button id="restStart" class="btn ok px-3 py-2 rounded-md hover:bg-green-600/10 focus-vis">Iniciar</button>
+          <button id="restPause" class="btn px-3 py-2 rounded-md border border-gray-600/60 text-gray-200 hover:bg-white/5 focus-vis">Pausar</button>
+          <button id="restAdd30" class="btn gold px-3 py-2 rounded-md hover:bg-yellow-600/10 focus-vis">+30s</button>
+          <button id="restReset" class="btn px-3 py-2 rounded-md border border-gray-600/60 text-gray-200 hover:bg-white/5 focus-vis">Reset</button>
+        </div>
+        <div class="text-xs text-gray-400">Ao terminar, registraremos o descanso real no histórico.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onboarding -->
+  <div id="onboard" class="hidden fixed inset-0 z-[80] modal-backdrop flex items-center justify-center p-4">
+    <div class="card w-full max-w-2xl overflow-hidden">
+      <div class="p-5 border-b border-[color:var(--edge)] flex items-center justify-between">
+        <h3 class="title-font text-2xl">Bem-vindo(a) ao Old School Gym</h3>
+      </div>
+      <div class="p-6 space-y-6">
+        <div id="step1" class="space-y-3">
+          <h4 class="title-font text-xl">1) Escolha a unidade</h4>
+          <div class="flex gap-3">
+            <label class="chip px-3 py-2 rounded cursor-pointer"><input type="radio" name="ob_unit" value="kg" class="accent-yellow-400" checked/> KG</label>
+            <label class="chip px-3 py-2 rounded cursor-pointer"><input type="radio" name="ob_unit" value="lb" class="accent-yellow-400"/> LB</label>
+          </div>
+        </div>
+        <div id="step2" class="space-y-3">
+          <h4 class="title-font text-xl">2) Objetivos</h4>
+          <div class="flex flex-wrap gap-2">
+            <label class="chip px-3 py-2 rounded cursor-pointer"><input type="checkbox" class="accent-yellow-400 ob_goal" value="força"/> Força</label>
+            <label class="chip px-3 py-2 rounded cursor-pointer"><input type="checkbox" class="accent-yellow-400 ob_goal" value="hipertrofia"/> Hipertrofia</label>
+            <label class="chip px-3 py-2 rounded cursor-pointer"><input type="checkbox" class="accent-yellow-400 ob_goal" value="resistência"/> Resistência</label>
+          </div>
+        </div>
+        <div id="step3" class="space-y-3">
+          <h4 class="title-font text-xl">3) Grupos favoritos</h4>
+          <div class="flex flex-wrap gap-2">
+            <label class="chip px-3 py-2 rounded cursor-pointer"><input type="checkbox" class="accent-yellow-400 ob_group" value="Peito"/> Peito</label>
+            <label class="chip px-3 py-2 rounded cursor-pointer"><input type="checkbox" class="accent-yellow-400 ob_group" value="Costas"/> Costas</label>
+            <label class="chip px-3 py-2 rounded cursor-pointer"><input type="checkbox" class="accent-yellow-400 ob_group" value="Pernas"/> Pernas</label>
+            <label class="chip px-3 py-2 rounded cursor-pointer"><input type="checkbox" class="accent-yellow-400 ob_group" value="Ombros"/> Ombros</label>
+            <label class="chip px-3 py-2 rounded cursor-pointer"><input type="checkbox" class="accent-yellow-400 ob_group" value="Bíceps"/> Bíceps</label>
+            <label class="chip px-3 py-2 rounded cursor-pointer"><input type="checkbox" class="accent-yellow-400 ob_group" value="Tríceps"/> Tríceps</label>
+            <label class="chip px-3 py-2 rounded cursor-pointer"><input type="checkbox" class="accent-yellow-400 ob_group" value="Core"/> Core</label>
+          </div>
+        </div>
+        <div class="text-sm text-gray-400">Vamos criar 3 aparelhos iniciais para não ficar vazio. Você pode editar ou remover quando quiser.</div>
+      </div>
+      <div class="p-5 border-t border-[color:var(--edge)] flex items-center justify-end gap-3">
+        <button id="finishOnboard" class="btn bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-md">Começar</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="px-5 md:px-10 pb-10">
+    <div class="max-w-7xl mx-auto text-center text-gray-500 text-xs">
+      Dica: atalhos n (novo), l (registrar), g (ciclo de grupos), s (timer). Sem áudio; vibração quando possível.
+    </div>
+  </footer>
+
+  <script>
+    // ---------- Estado & Storage ----------
+    const LS_KEY = 'osg.exercises.v3';
+    const PREF_KEY = 'osg.prefs.v1';
+    const SESS_KEY = 'osg.sessions.v1';
+    const ONB_KEY = 'osg.onboard.v1';
+    /**
+     * exercises: [{
+     *  id, name, group?, photo?, plan:'linear'|'double'|'531', createdAt,
+     *  history: [{date, weight(kg), reps?, rpe?, note?, restSec?, pr?}]
+     * }]
+     */
+    let exercises = [];
+    let sessions = []; // [{id, name, items:[{exId,targetReps?:number,targetSets?:number,rest?:number}], createdAt}]
+    let prefs = { unit:'kg', contrast:false, large:false, goals:[], favGroups:[] };
+    let onboardDone = false;
+    let currentTab = 'meus';
+    let currentExerciseId = null;
+    let runningSession = null; // {id, name, startedAt, items:[{exId, done:boolean}]}
+
+    // ---------- Biblioteca ----------
+    const LIB = [
+      {name:'Supino reto', group:'Peito', color:'#ef4444'},
+      {name:'Puxada frente', group:'Costas', color:'#22d3ee'},
+      {name:'Agachamento livre', group:'Pernas', color:'#a3e635'},
+      {name:'Leg press', group:'Pernas', color:'#84cc16'},
+      {name:'Desenvolvimento militar', group:'Ombros', color:'#f43f5e'},
+      {name:'Rosca direta', group:'Bíceps', color:'#a855f7'},
+      {name:'Tríceps corda', group:'Tríceps', color:'#f9a8d4'},
+      {name:'Abdominal máquina', group:'Core', color:'#14b8a6'}
+    ];
+
+    function uid(){ return Math.random().toString(36).slice(2) + Date.now().toString(36) }
+    function load(){
+      try{ exercises = JSON.parse(localStorage.getItem(LS_KEY) || '[]') }catch{ exercises=[] }
+      try{ prefs = Object.assign({unit:'kg',contrast:false,large:false,goals:[],favGroups:[]}, JSON.parse(localStorage.getItem(PREF_KEY) || '{}')) }catch{}
+      try{ sessions = JSON.parse(localStorage.getItem(SESS_KEY) || '[]') }catch{ sessions=[] }
+      try{ onboardDone = JSON.parse(localStorage.getItem(ONB_KEY) || 'false') }catch{ onboardDone=false }
+    }
+    function save(){ localStorage.setItem(LS_KEY, JSON.stringify(exercises)) }
+    function savePrefs(){ localStorage.setItem(PREF_KEY, JSON.stringify(prefs)) }
+    function saveSessions(){ localStorage.setItem(SESS_KEY, JSON.stringify(sessions)) }
+    function saveOnboard(){ localStorage.setItem(ONB_KEY, JSON.stringify(onboardDone)) }
+
+    // ---------- Helpers ----------
+    const $ = s => document.querySelector(s);
+    function escapeHtml(str){ return String(str).replace(/[&<>"']/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[s]) }
+    function formatDate(ts){ const d = new Date(ts); return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' }) }
+    function formatDay(ts){ const d = new Date(ts); return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' }) }
+    function formatTiming(ts){ const diff=Date.now()-ts; const m=Math.floor(diff/60000); if(m<60) return m===0?'agora':`${m} min`; const h=Math.floor(m/60); if(h<24) return `${h} h`; const d=Math.floor(h/24); return `${d} d`; }
+    function byId(id){ return exercises.find(e=> e.id===id) }
+    function svgPlaceholder(text, c1='#ef4444'){
+      const initials = text.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='${c1}'/><stop offset='1' stop-color='#f59e0b'/></linearGradient></defs><rect width='100%' height='100%' rx='24' fill='#0b0b0c'/><rect x='12' y='12' width='232' height='232' rx='20' fill='url(#g)' opacity='0.2' stroke='${c1}' stroke-opacity='0.5'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='Oswald, Arial' font-size='88' fill='white' fill-opacity='0.9'>${initials}</text></svg>`;
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+
+    // Units
+    const KG_TO_LB = 2.20462;
+    function toKg(v, unit){ return unit==='lb' ? v / KG_TO_LB : v }
+    function toDisplayKgLb(kg){ const lb = kg * KG_TO_LB; return prefs.unit==='kg' ? `${kg} kg (${lb.toFixed(1)} lb)` : `${lb.toFixed(1)} lb (${kg} kg)` }
+
+    // 1RM estimate (Epley)
+    function estimate1RM(kg, reps){ if(!kg || !reps) return null; return kg * (1 + reps/30) }
+
+    // ---------- UI: filtros/ordenar/busca ----------
+    let filterGroup = ''; let sortBy = 'recent'; let searchTerm = '';
+
+    // ---------- Render: Meus ----------
+    const gridMeus = $('#viewMeus');
+    function renderMeus(){
+      // fill group filter
+      const groupsSet = new Set(exercises.map(e=>e.group).filter(Boolean));
+      const filterSel = $('#filterGroup');
+      const keep = filterSel.value;
+      filterSel.innerHTML = `<option value="">Todos</option>` + [...groupsSet].sort().map(g=> `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
+      filterSel.value = filterGroup || '';
+
+      gridMeus.innerHTML = '';
+      let list = exercises.slice();
+
+      if(filterGroup) list = list.filter(e=> e.group === filterGroup);
+      if(searchTerm){
+        const s = searchTerm.toLowerCase();
+        list = list.filter(e=> (e.name||'').toLowerCase().includes(s) || (e.group||'').toLowerCase().includes(s));
+      }
+
+      list.sort((a,b)=>{
+        if(sortBy==='name') return a.name.localeCompare(b.name);
+        if(sortBy==='best'){ const ba=Math.max(0,...(a.history||[]).map(h=>h.weight)); const bb=Math.max(0,...(b.history||[]).map(h=>h.weight)); return bb-ba; }
+        if(sortBy==='most'){ const ca=(a.history||[]).length; const cb=(b.history||[]).length; return cb-ca; }
+        const la=a.history?.[a.history.length-1]?.date || a.createdAt; const lb=b.history?.[b.history.length-1]?.date || b.createdAt; return lb-la;
+      });
+
+      if(list.length===0){
+        const empty = document.createElement('div');
+        empty.className='card p-8 flex flex-col items-center justify-center text-center col-span-full';
+        empty.innerHTML = `<div class="text-5xl mb-2">🏋️</div><h3 class="title-font text-2xl mb-1">Nada por aqui</h3><p class="text-gray-400 mb-4">Use a Biblioteca ou adicione manualmente para começar.</p><div class="flex gap-2"><button class="btn bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-md" id="emptyAdd">+ Adicionar</button><button class="btn gold px-4 py-2 rounded-md hover:bg-yellow-600/10" id="emptyLib">Biblioteca</button></div>`;
+        gridMeus.appendChild(empty);
+        $('#emptyAdd').onclick=()=>openModal('modalAdd'); $('#emptyLib').onclick=()=>activateTab('biblioteca');
+        return;
+      }
+
+      for(const ex of list){
+        const last = ex.history?.[ex.history.length-1];
+        const best = ex.history?.reduce((m,h)=> Math.max(m,h.weight),0) || 0;
+        const best1rm = ex.history && ex.history.length ? Math.max(...ex.history.map(h=> estimate1RM(h.weight, h.reps||1) || 0)) : 0;
+        const hasPR = !!last?.pr;
+
+        const card = document.createElement('article');
+        card.className='card overflow-visible flex flex-col';
+        card.innerHTML = `
+          <div class="p-4 flex items-start gap-4">
+            <div class="img-frame w-20 h-20 rounded-xl overflow-hidden flex items-center justify-center shrink-0">
+              ${ex.photo ? `<img alt="Foto do aparelho ${escapeHtml(ex.name)}" class="w-full h-full object-cover" src="${ex.photo}" onerror="this.src=''; this.alt='Imagem falhou ao carregar'; this.style.display='none';">` : `<div class="text-gray-500 text-xs px-2">Sem foto</div>`}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h3 class="title-font text-xl truncate">${escapeHtml(ex.name)}</h3>
+                ${ex.group ? `<span class="chip text-[10px] px-2 py-0.5 rounded">${escapeHtml(ex.group)}</span>`:''}
+                <span class="chip text-[10px] px-2 py-0.5 rounded">Plano: ${ex.plan || 'linear'}</span>
+                ${hasPR ? `<span class="badge-pr text-[10px] px-2 py-0.5 rounded">PR ${last.pr==='1rm'?'1RM':'Carga'}</span>`:''}
+              </div>
+              <div class="mt-1 text-sm text-gray-400">
+                ${last ? `Última: <span class="text-gray-200">${toDisplayKgLb(Number(last.weight.toFixed(2)))}${last.reps?` • ${last.reps} reps`:''}${last.rpe?` • RPE ${last.rpe}`:''}</span> • ${formatTiming(last.date)} atrás` : `Sem registros ainda`}
+              </div>
+            </div>
+          </div>
+          <div class="px-4"><canvas id="spark-${ex.id}" height="56" class="w-full rounded-lg bg-[#0b0c0e] border border-[color:var(--edge)]"></canvas></div>
+          <div class="p-4 flex items-center justify-between gap-2 flex-wrap">
+            <div class="text-xs text-gray-400">
+              Recorde: <span class="text-gray-100">${toDisplayKgLb(best)}</span> • 1RM est.: <span class="text-gray-100">${best1rm?toDisplayKgLb(Math.round(best1rm)):'—'}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="btn ok px-3 py-1.5 rounded-md hover:bg-green-600/10 focus-vis" data-action="log" data-id="${ex.id}">+ Registrar</button>
+              <button class="btn gold px-3 py-1.5 rounded-md hover:bg-yellow-600/10 focus-vis" data-action="chart" data-id="${ex.id}">Ver gráfico</button>
+              <div class="relative">
+                <button class="btn px-3 py-1.5 rounded-md border border-gray-600/60 text-gray-300 hover:bg-white/5 focus-vis" data-action="more" data-id="${ex.id}">Mais ▾</button>
+                <div class="hidden absolute right-0 mt-1 w-48 card p-1 menu" id="menu-${ex.id}">
+                  <button class="w-full text-left px-3 py-2 rounded hover:bg-white/5" data-action="edit" data-id="${ex.id}">Editar</button>
+                  <button class="w-full text-left px-3 py-2 rounded hover:bg-white/5" data-action="sharepr" data-id="${ex.id}">Compartilhar PR</button>
+                  <button class="w-full text-left px-3 py-2 rounded hover:bg-white/5 text-red-300" data-action="delete" data-id="${ex.id}">Excluir</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        gridMeus.appendChild(card);
+        drawSparkline(`spark-${ex.id}`, ex.history || []);
+
+        const menu = card.querySelector(`#menu-${ex.id.replace(/[^a-zA-Z0-9_-]/g,'_')}`);
+        card.querySelector('[data-action="more"]').onclick = (e)=>{ e.stopPropagation(); document.querySelectorAll('[id^="menu-"]').forEach(m=>m.classList.add('hidden')); menu.classList.toggle('hidden') };
+        document.addEventListener('click', ()=> menu.classList.add('hidden'));
+        card.querySelector('[data-action="log"]').onclick = ()=> openLog(ex.id);
+        card.querySelector('[data-action="chart"]').onclick = ()=> openChart(ex.id);
+        card.querySelector('[data-action="edit"]').onclick = ()=> editExercise(ex.id);
+        card.querySelector('[data-action="delete"]').onclick = ()=> deleteExercise(ex.id);
+        card.querySelector('[data-action="sharepr"]').onclick = ()=> sharePRCard(ex.id);
+      }
+    }
+
+    // ---------- Biblioteca ----------
+    const gridLib = $('#libraryGrid');
+    function renderLibrary(){
+      gridLib.innerHTML='';
+      const groups={}; for(const m of LIB){ if(!groups[m.group]) groups[m.group]=[]; groups[m.group].push(m) }
+      Object.keys(groups).sort().forEach(group=>{
+        const h = document.createElement('div'); h.className='col-span-full'; h.innerHTML = `<h3 class="title-font text-xl mb-3">${group}</h3>`; gridLib.appendChild(h);
+        for(const m of groups[group]){
+          const card = document.createElement('article');
+          card.className='card overflow-hidden flex items-center gap-4 p-4';
+          const photo = svgPlaceholder(m.name, m.color);
+          card.innerHTML = `
+            <div class="img-frame w-20 h-20 rounded-xl overflow-hidden shrink-0"><img alt="Máquina ${escapeHtml(m.name)}" class="w-full h-full object-cover" src="${photo}" onerror="this.src='';this.alt='Imagem falhou';this.style.display='none';"></div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap"><h4 class="title-font text-lg truncate">${escapeHtml(m.name)}</h4><span class="chip text-[10px] px-2 py-0.5 rounded">${escapeHtml(group)}</span></div>
+              <p class="text-xs text-gray-400 mt-0.5">Clique para adicionar ao seu painel.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="btn ok px-3 py-1.5 rounded-md hover:bg-green-600/10 focus-vis" data-add="${escapeHtml(m.name)}">Adicionar</button>
+            </div>
+          `;
+          gridLib.appendChild(card);
+          card.querySelector('[data-add]').onclick = (e)=>{
+            const ex = { id:uid(), name:m.name, group:m.group, photo, plan:'linear', history:[], createdAt:Date.now() };
+            exercises.push(ex); save(); renderMeus();
+            e.target.textContent='Adicionado!'; e.target.classList.add('ring-raw'); setTimeout(()=>{ e.target.textContent='Adicionar'; e.target.classList.remove('ring-raw') },900);
+          };
+        }
+      });
+    }
+
+    // ---------- Sparklines & Chart ----------
+    function drawSparkline(canvasId, history){
+      const c = document.getElementById(canvasId); if(!c) return;
+      const ctx = c.getContext('2d');
+      const w = c.width = Math.max(200, c.clientWidth) * devicePixelRatio;
+      const h = c.height = 56 * devicePixelRatio;
+      ctx.setTransform(1,0,0,1,0,0); ctx.scale(devicePixelRatio, devicePixelRatio);
+      ctx.clearRect(0,0,w,h);
+      ctx.fillStyle = '#0b0c0e'; ctx.fillRect(0,0,w,h);
+
+      const data = (history||[]).slice(-12);
+      if(data.length===0){ ctx.fillStyle='rgba(255,255,255,.35)'; ctx.font='12px Oswald, sans-serif'; ctx.fillText('Sem dados',8,20); return; }
+      const weights = data.map(d=>d.weight); const min = Math.min(...weights); const max = Math.max(...weights);
+      const pad=8; const innerW = c.clientWidth - pad*2; const innerH = (c.height/devicePixelRatio) - pad*2;
+      const x = i => pad + innerW * (i/((data.length-1)||1));
+      const y = v => (max===min) ? pad + innerH/2 : pad + innerH - ((v-min)/(max-min))*innerH;
+      const g = ctx.createLinearGradient(0,0,c.clientWidth,0); g.addColorStop(0,'#ef4444'); g.addColorStop(1,'#f59e0b');
+      ctx.lineWidth=2; ctx.strokeStyle=g; ctx.beginPath();
+      data.forEach((d,i)=>{ const px=x(i), py=y(d.weight); if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py) }); ctx.stroke();
+      const g2=ctx.createLinearGradient(0,0,0,c.clientHeight); g2.addColorStop(0,'rgba(239,68,68,.25)'); g2.addColorStop(1,'rgba(239,68,68,0)');
+      ctx.lineTo(x(data.length-1), c.clientHeight-pad); ctx.lineTo(x(0), c.clientHeight-pad); ctx.closePath(); ctx.fillStyle=g2; ctx.fill();
+      const last = data[data.length-1]; ctx.fillStyle='#fde68a'; ctx.beginPath(); ctx.arc(x(data.length-1), y(last.weight), 3, 0, Math.PI*2); ctx.fill();
+    }
+
+    function drawChart(canvas, history){
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = Math.max(300, canvas.clientWidth) * devicePixelRatio;
+      const h = canvas.height = 300 * devicePixelRatio;
+      ctx.setTransform(1,0,0,1,0,0); ctx.scale(devicePixelRatio, devicePixelRatio);
+      ctx.clearRect(0,0,w,h);
+      const padL=42, padR=12, padT=10, padB=28; const iw = canvas.clientWidth - padL - padR; const ih = (canvas.height/devicePixelRatio) - padT - padB;
+      ctx.strokeStyle='rgba(255,255,255,.06)'; ctx.lineWidth=1;
+      for(let i=0;i<=4;i++){ const y=padT+(ih/4)*i+.5; ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+iw,y); ctx.stroke() }
+
+      if(!history.length){ ctx.fillStyle='rgba(255,255,255,.5)'; ctx.font='14px Oswald, sans-serif'; ctx.fillText('Sem dados para exibir', padL+8, padT+24); return; }
+
+      const data = history.slice(-100);
+      const weights=data.map(d=>d.weight); const min=Math.min(...weights); const max=Math.max(...weights);
+      const dates=data.map(d=>d.date); const tmin=Math.min(...dates); const tmax=Math.max(...dates);
+      const x = t => tmax===tmin ? padL+iw/2 : padL + ((t-tmin)/(tmax-tmin))*iw;
+      const y = v => max===min ? padT+ih/2 : padT + ih - ((v-min)/(max-min))*ih;
+
+      const grad = ctx.createLinearGradient(0,padT,0,padT+ih); grad.addColorStop(0,'rgba(245,158,11,.25)'); grad.addColorStop(1,'rgba(245,158,11,0)');
+      ctx.beginPath(); data.forEach((d,i)=>{ const px=x(d.date), py=y(d.weight); if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py) });
+      ctx.lineTo(x(data[data.length-1].date), padT+ih); ctx.lineTo(x(data[0].date), padT+ih); ctx.closePath(); ctx.fillStyle=grad; ctx.fill();
+
+      const gradLine = ctx.createLinearGradient(padL,0,padL+iw,0); gradLine.addColorStop(0,'#ef4444'); gradLine.addColorStop(1,'#f59e0b');
+      ctx.strokeStyle=gradLine; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.lineCap='round';
+      ctx.beginPath(); data.forEach((d,i)=>{ const px=x(d.date), py=y(d.weight); if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py) }); ctx.stroke();
+
+      ctx.fillStyle='rgba(255,255,255,.6)'; ctx.font='12px Oswald, sans-serif';
+      const yMin=min.toFixed(0), yMax=max.toFixed(0), yMid=((min+max)/2).toFixed(0);
+      ctx.fillText(`${yMax} kg`, 6, padT+12); ctx.fillText(`${yMid} kg`, 6, padT+ih/2+4); ctx.fillText(`${yMin} kg`, 6, padT+ih+0);
+      ctx.textAlign='right'; ctx.fillText(new Date(tmin).toLocaleDateString('pt-BR'), padL+80, padT+ih+22);
+      ctx.textAlign='left'; ctx.fillText(new Date(tmax).toLocaleDateString('pt-BR'), padL+iw-80, padT+ih+22);
+      ctx.fillStyle='#fde68a'; data.forEach(d=>{ ctx.beginPath(); ctx.arc(x(d.date), y(d.weight), 3, 0, Math.PI*2); ctx.fill() });
+    }
+
+    // ---------- Modais ----------
+    function openModal(id){ document.getElementById(id).classList.remove('hidden') }
+    function closeModal(id){ document.getElementById(id).classList.add('hidden') }
+    document.querySelectorAll('[data-close-modal]').forEach(btn=> btn.addEventListener('click', ()=> closeModal(btn.getAttribute('data-close-modal')) ));
+    ;['modalAdd','modalLog','modalChart','modalRest'].forEach(mid=>{
+      const el = document.getElementById(mid); el.addEventListener('click', (e)=>{ if(e.target===el) closeModal(mid) });
+    });
+
+    // ---------- Add/Edit ----------
+    const inputPhotoAdd = $('#inputPhotoAdd'); const previewAdd = $('#previewAdd'); const previewAddFallback = $('#previewAddFallback');
+    let tempPhotoData = null;
+    inputPhotoAdd.addEventListener('change', async (e)=>{
+      const f = e.target.files?.[0]; if(!f){ tempPhotoData=null; previewAdd.src=''; previewAdd.classList.add('hidden'); previewAddFallback.classList.remove('hidden'); return; }
+      const dataUrl = await fileToDataURL(f); tempPhotoData=dataUrl; previewAdd.src=dataUrl; previewAdd.classList.remove('hidden'); previewAddFallback.classList.add('hidden');
+    });
+    function fileToDataURL(file){ return new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsDataURL(file) }) }
+    $('#addExerciseBtn').onclick = ()=>{ resetAddForm(); openModal('modalAdd') }
+    function resetAddForm(){ $('#inputNameAdd').value=''; $('#inputGroupAdd').value=''; $('#inputStartWeight').value=''; $('#inputPlan').value='linear'; inputPhotoAdd.value=''; tempPhotoData=null; previewAdd.src=''; previewAdd.classList.add('hidden'); previewAddFallback.classList.remove('hidden') }
+    $('#saveAdd').onclick = ()=>{
+      const name=$('#inputNameAdd').value.trim(); const group=$('#inputGroupAdd').value.trim(); const start=parseFloat($('#inputStartWeight').value); const plan=$('#inputPlan').value;
+      if(!name){ alert('Informe o nome do aparelho.'); return; }
+      const ex = { id:uid(), name, group:group||undefined, photo: tempPhotoData||svgPlaceholder(name), plan, history:[], createdAt:Date.now() };
+      if(!isNaN(start)) ex.history.push({ date:Date.now(), weight:start, note:'Carga inicial' });
+      exercises.push(ex); save(); renderMeus(); closeModal('modalAdd'); resetAddForm();
+    }
+    function editExercise(id){
+      const ex = byId(id); if(!ex) return;
+      resetAddForm();
+      $('#inputNameAdd').value = ex.name; $('#inputGroupAdd').value = ex.group || ''; $('#inputPlan').value = ex.plan || 'linear';
+      if(ex.photo){ tempPhotoData=ex.photo; previewAdd.src=ex.photo; previewAdd.classList.remove('hidden'); previewAddFallback.classList.add('hidden') }
+      openModal('modalAdd');
+      const btn=$('#saveAdd'); const old=btn.onclick;
+      btn.onclick = ()=>{ const name=$('#inputNameAdd').value.trim(); const group=$('#inputGroupAdd').value.trim(); const plan=$('#inputPlan').value;
+        if(!name){ alert('Informe o nome do aparelho.'); return; }
+        ex.name=name; ex.group=group||undefined; ex.photo=tempPhotoData||svgPlaceholder(name); ex.plan=plan;
+        save(); renderMeus(); closeModal('modalAdd'); tempPhotoData=null; btn.onclick=old; };
+      const closeBtn=document.querySelector('[data-close-modal="modalAdd"]');
+      const onClose=()=>{ btn.onclick=old; tempPhotoData=null; closeBtn.removeEventListener('click',onClose) }; closeBtn.addEventListener('click',onClose);
+    }
+    function deleteExercise(id){
+      const ex=byId(id); if(!ex) return;
+      if(confirm(`Excluir "${ex.name}"?`)){ exercises=exercises.filter(e=>e.id!==id); // remove também de sessões
+        sessions.forEach(s=> s.items = s.items.filter(i=> i.exId!==id)); saveSessions();
+        save(); renderMeus(); renderSessions();
+      }
+    }
+
+    // ---------- Log + Sugestões (planos) ----------
+    const unitKgBtn=$('#unitKg'), unitLbBtn=$('#unitLb');
+    unitKgBtn.onclick=()=>{ prefs.unit='kg'; savePrefs(); updateUnitUI() }
+    unitLbBtn.onclick=()=>{ prefs.unit='lb'; savePrefs(); updateUnitUI() }
+    function updateUnitUI(){
+      unitKgBtn.classList.toggle('ring-raw', prefs.unit==='kg'); unitLbBtn.classList.toggle('ring-raw', prefs.unit==='lb');
+      $('#logUnitLabel').textContent = prefs.unit;
+      const w=parseFloat($('#inputWeight').value); if(!isNaN(w)){ const kg=toKg(w,prefs.unit); const lb=kg*KG_TO_LB; $('#weightHelper').textContent = prefs.unit==='kg' ? `≈ ${lb.toFixed(1)} lb` : `≈ ${kg.toFixed(1)} kg` } else { $('#weightHelper').textContent='' }
+    }
+    document.addEventListener('click',(e)=>{ const b=e.target.closest('[data-note]'); if(b){ const t=$('#inputNote'); const v=b.getAttribute('data-note'); t.value = t.value ? `${t.value} | ${v}` : v } });
+
+    function openLog(id){
+      currentExerciseId = id;
+      $('#inputWeight').value=''; $('#inputReps').value=''; $('#inputRPE').value=''; $('#inputNote').value='';
+      showSuggestion(id);
+      updateUnitUI();
+      openModal('modalLog');
+    }
+    $('#quickAddCTA').onclick = ()=>{
+      if(exercises.length===0){ activateTab('biblioteca'); return; }
+      const sorted=[...exercises].sort((a,b)=> (b.history?.[b.history.length-1]?.date||b.createdAt) - (a.history?.[a.history.length-1]?.date||a.createdAt));
+      openLog(sorted[0].id);
+    };
+    $('#btnUseLast').onclick = ()=>{
+      const ex = byId(currentExerciseId); if(!ex||!ex.history?.length) return;
+      const last = ex.history[ex.history.length-1];
+      const wDisplay = prefs.unit==='kg' ? last.weight : (last.weight * KG_TO_LB);
+      $('#inputWeight').value = Number(wDisplay.toFixed(2));
+      $('#inputReps').value = last.reps || '';
+      $('#inputRPE').value = last.rpe || '';
+      $('#inputNote').value = last.note || '';
+      updateUnitUI();
+    };
+    $('#inputWeight').addEventListener('input', updateUnitUI);
+
+    function showSuggestion(id){
+      const ex=byId(id); if(!ex) return;
+      const last=ex.history?.[ex.history.length-1]; let text='—';
+      if(ex.plan==='linear' && last){ text = `Tente ${toDisplayKgLb(Number((last.weight+2.5).toFixed(2)))}` }
+      else if(ex.plan==='double'){
+        if(last?.reps!=null){ const reps = last.reps>=12 ? 8 : (last.reps+1); const kg = reps===8 ? Number((last.weight+2.5).toFixed(2)) : last.weight; text=`Meta: ${reps} reps em ${toDisplayKgLb(kg)}` } else text='Meta: 8–12 reps, suba 2,5 kg ao fechar 12'
+      } else if(ex.plan==='531'){
+        if(last){ text=`Ciclo 5/3/1 lite: parta de ${toDisplayKgLb(Number((last.weight*0.9).toFixed(2)))} (TM 90%)` } else text='Defina sua TM (≈90% do 1RM) e siga 5/3/1'
+      }
+      $('#suggestionBox').textContent = 'Sugestão: ' + text;
+    }
+
+    // salvar e abrir timer
+    $('#saveLog').onclick = ()=>{
+      const ex = byId(currentExerciseId); if(!ex) return;
+      const wInput=parseFloat($('#inputWeight').value); const reps=parseInt($('#inputReps').value); const rpe=parseFloat($('#inputRPE').value); const note=$('#inputNote').value.trim();
+      if(isNaN(wInput)){ alert('Informe o peso.'); return; }
+      const weightKg = Number(toKg(wInput, prefs.unit).toFixed(2));
+      const entry={ date:Date.now(), weight: weightKg }; if(!isNaN(reps)) entry.reps=reps; if(!isNaN(rpe)) entry.rpe=rpe; if(note) entry.note=note;
+
+      // PR
+      const prevMax = Math.max(0, ...(ex.history||[]).map(h=>h.weight));
+      const new1rm = estimate1RM(weightKg, entry.reps||1) || 0;
+      const prev1rm = ex.history?.length ? Math.max(...ex.history.map(h=> estimate1RM(h.weight, h.reps||1) || 0)) : 0;
+      if(new1rm > prev1rm + 1e-6) entry.pr='1rm'; else if(weightKg > prevMax) entry.pr='weight';
+
+      ex.history.push(entry); save(); renderMeus();
+      closeModal('modalLog');
+
+      startRestTimer(90, (actualSec)=>{
+        const last = ex.history[ex.history.length-1]; if(last){ last.restSec = actualSec; save() }
+      });
+    };
+
+    // ---------- Chart ----------
+    function openChart(id){
+      const ex=byId(id); if(!ex) return;
+      currentExerciseId=id;
+      $('#chartTitle').textContent = ex.name; $('#chartSub').textContent = ex.group ? `Grupo: ${ex.group}` : 'Histórico de cargas';
+      const photo = $('#chartPhoto'); if(ex.photo){ photo.src=ex.photo; photo.classList.remove('hidden') } else { photo.src=''; photo.classList.add('hidden') }
+      drawChart($('#progressCanvas'), ex.history||[]);
+      const list = $('#historyList'); list.innerHTML='';
+      if(!ex.history?.length){ const d=document.createElement('div'); d.className='text-gray-400 text-sm'; d.textContent='Sem registros ainda.'; list.appendChild(d) }
+      else{
+        [...ex.history].reverse().forEach(h=>{
+          const details=[toDisplayKgLb(h.weight), h.reps?`${h.reps} reps`:null, h.rpe?`RPE ${h.rpe}`:null, h.restSec?`Descanso ${formatSec(h.restSec)}`:null].filter(Boolean).join(' • ');
+          const row=document.createElement('div'); row.className='flex items-center justify-between gap-3 px-3 py-2 rounded bg-[#0c0d10] border border-[color:var(--edge)]';
+          row.innerHTML=`<div class="flex items-center gap-3">${h.pr?`<span class="badge-pr px-1.5 py-0.5 rounded text-[10px]">PR</span>`:`<span class="text-yellow-300">●</span>`}<div><div class="text-sm text-gray-100">${details}</div><div class="text-xs text-gray-400">${formatDate(h.date)}${h.note?` • ${escapeHtml(h.note)}`:''}</div></div></div><button class="btn text-xs px-2 py-1 rounded border border-gray-600/60 text-gray-300 hover:bg-white/5" data-remove="${h.date}">Remover</button>`;
+          list.appendChild(row);
+          row.querySelector('[data-remove]').onclick = ()=>{ const idx=ex.history.findIndex(x=>x.date===h.date); if(idx>=0){ ex.history.splice(idx,1); save(); openChart(ex.id); renderMeus(); } };
+        });
+      }
+      $('#quickAddFromChart').onclick = ()=> openLog(ex.id);
+      $('#sharePRCardBtn').onclick = ()=> sharePRCard(ex.id);
+      openModal('modalChart');
+    }
+    function formatSec(s){ const m=Math.floor(s/60), r=s%60; return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}` }
+
+    // ---------- Timer ----------
+    let restTimer = { total:90, left:90, running:false, startTs:null, interval:null, onFinish:null };
+    function startRestTimer(seconds,onFinish){
+      restTimer={ total:seconds, left:seconds, running:false, startTs:null, interval:null, onFinish };
+      $('#restTime').textContent = formatSec(restTimer.left); openModal('modalRest');
+    }
+    function tickRest(){
+      if(!restTimer.running) return;
+      const now=Date.now(); const elapsed=Math.floor((now - restTimer.startTs)/1000); restTimer.left = Math.max(0, restTimer.total - elapsed);
+      $('#restTime').textContent = formatSec(restTimer.left);
+      if(restTimer.left===0){ clearInterval(restTimer.interval); restTimer.running=false; $('#restTime').classList.add('ring-raw'); if(navigator.vibrate) try{ navigator.vibrate([200,100,200]) }catch{} setTimeout(()=>$('#restTime').classList.remove('ring-raw'),1200); if(typeof restTimer.onFinish==='function') restTimer.onFinish(restTimer.total) }
+    }
+    $('#restStart').onclick = ()=>{ if(restTimer.running) return; restTimer.running=true; restTimer.startTs = Date.now() - (restTimer.total - restTimer.left)*1000; restTimer.interval=setInterval(tickRest,250) }
+    $('#restPause').onclick = ()=>{ if(!restTimer.running) return; restTimer.running=false; clearInterval(restTimer.interval); tickRest() }
+    $('#restAdd30').onclick = ()=>{ if(restTimer.running){ const elapsed=Math.floor((Date.now()-restTimer.startTs)/1000); restTimer.total+=30; restTimer.left=Math.max(0, restTimer.total - elapsed) } else { restTimer.total+=30; restTimer.left+=30 } $('#restTime').textContent=formatSec(restTimer.left) }
+    $('#restReset').onclick = ()=>{ restTimer.total=90; restTimer.left=90; restTimer.running=false; clearInterval(restTimer.interval); $('#restTime').textContent=formatSec(90) }
+    $('#closeRest').onclick = ()=>{ const actual = restTimer.running ? (restTimer.total - Math.max(0, Math.floor((Date.now()-restTimer.startTs)/1000))) : (restTimer.total - restTimer.left); if(typeof restTimer.onFinish==='function') restTimer.onFinish(actual); closeModal('modalRest'); restTimer.running=false; clearInterval(restTimer.interval) }
+
+    // ---------- Sessões ----------
+    function renderSessions(){
+      const list = $('#sessionsList'); list.innerHTML='';
+      sessions.forEach(s=>{
+        const wrap=document.createElement('div'); wrap.className='p-3 rounded border border-[color:var(--edge)]';
+        wrap.innerHTML = `<div class="flex items-center justify-between mb-2"><div class="flex items-center gap-2"><span class="chip px-2 py-0.5 rounded text-xs">${escapeHtml(s.name)}</span><span class="text-xs text-gray-400">${s.items.length} itens</span></div><div class="flex items-center gap-2"><button class="btn px-2 py-1 rounded border border-gray-600/60 text-gray-200 hover:bg-white/5" data-edit="${s.id}">Editar</button><button class="btn px-2 py-1 rounded border border-gray-600/60 text-red-200 hover:bg-red-600/10" data-del="${s.id}">Excluir</button></div></div>`;
+        const ul=document.createElement('div'); ul.className='space-y-1';
+        s.items.forEach((it,idx)=>{
+          const ex = byId(it.exId); const name = ex?ex.name:'(removido)';
+          const row=document.createElement('div'); row.className='flex items-center justify-between text-sm bg-[#0b0c0e] border border-[color:var(--edge)] rounded px-2 py-1';
+          row.innerHTML = `<div class="truncate">${idx+1}. ${escapeHtml(name)} ${it.targetSets?'• '+it.targetSets+'x':''}${it.targetReps?' '+it.targetReps+' reps':''}${it.rest?' • descanso '+it.rest+'s':''}</div><div class="flex items-center gap-1"><button class="chip px-2 py-0.5 rounded" data-up="${s.id}:${idx}">↑</button><button class="chip px-2 py-0.5 rounded" data-down="${s.id}:${idx}">↓</button><button class="chip px-2 py-0.5 rounded text-red-300" data-rm="${s.id}:${idx}">x</button></div>`;
+          ul.appendChild(row);
+        });
+        wrap.appendChild(ul); list.appendChild(wrap);
+
+        wrap.querySelector(`[data-edit="${s.id}"]`).addEventListener('click', (ev)=>{ ev.stopPropagation(); editSession(s.id); });
+        wrap.querySelector(`[data-del="${s.id}"]`).onclick = ()=>{ if(confirm('Excluir sessão?')){ sessions=sessions.filter(x=>x.id!==s.id); saveSessions(); renderSessions(); fillRunSelect(); } }
+        wrap.querySelectorAll('[data-up],[data-down],[data-rm]').forEach(btn=>{
+          btn.onclick = ()=>{
+            const [sid, idxStr] = (btn.getAttribute('data-up')||btn.getAttribute('data-down')||btn.getAttribute('data-rm')).split(':');
+            const sess = sessions.find(x=>x.id===sid); if(!sess) return; const i = parseInt(idxStr);
+            if(btn.hasAttribute('data-up') && i>0){ const t=sess.items[i-1]; sess.items[i-1]=sess.items[i]; sess.items[i]=t; }
+            if(btn.hasAttribute('data-down') && i<sess.items.length-1){ const t=sess.items[i+1]; sess.items[i+1]=sess.items[i]; sess.items[i]=t; }
+            if(btn.hasAttribute('data-rm')){ sess.items.splice(i,1) }
+            saveSessions(); renderSessions(); fillRunSelect();
+          }
+        });
+      });
+
+      fillRunSelect();
+    }
+    function editSession(id){
+      const sess = sessions.find(s=>s.id===id); if(!sess) return;
+      const exList = exercises.map(e=> `<option value="${e.id}">${escapeHtml(e.name)}</option>`).join('');
+      const name = prompt('Nome da sessão:', sess.name) || sess.name;
+      sess.name = name;
+      // adicionar item rápido
+      const add = confirm('Quer adicionar um aparelho a esta sessão agora?');
+      if(add){
+        const sel = document.createElement('div');
+        sel.innerHTML = `<div class="card p-3 my-3"><div class="text-sm text-gray-300 mb-2">Adicionar aparelho</div><div class="flex items-center gap-2"><select id="tmpExSel" class="bg-[#0c0d0f] border border-[color:var(--edge)] rounded px-2 py-1 text-sm">${exList}</select><input id="tmpSets" type="number" min="1" placeholder="séries" class="w-20 bg-[#0c0d0f] border border-[color:var(--edge)] rounded px-2 py-1 text-sm"/><input id="tmpReps" type="number" min="1" placeholder="reps" class="w-20 bg-[#0c0d0f] border border-[color:var(--edge)] rounded px-2 py-1 text-sm"/><input id="tmpRest" type="number" min="30" placeholder="desc (s)" class="w-24 bg-[#0c0d0f] border border-[color:var(--edge)] rounded px-2 py-1 text-sm"/><button id="tmpAdd" class="btn ok px-3 py-1.5 rounded-md hover:bg-green-600/10">Adicionar</button></div></div>`;
+        document.body.appendChild(sel);
+        sel.querySelector('#tmpAdd').onclick = ()=>{
+          const exId=sel.querySelector('#tmpExSel').value; const sets=parseInt(sel.querySelector('#tmpSets').value)||undefined; const reps=parseInt(sel.querySelector('#tmpReps').value)||undefined; const rest=parseInt(sel.querySelector('#tmpRest').value)||undefined;
+          sess.items.push({ exId, targetSets:sets, targetReps:reps, rest }); saveSessions(); renderSessions(); fillRunSelect(); sel.remove();
+        };
+      }
+      saveSessions(); renderSessions(); fillRunSelect();
+    }
+    $('#addSessionBtn').onclick = ()=>{
+      const base = ['Treino A','Treino B','Treino C'];
+      const name = prompt('Nome da sessão (ex.: Treino A):', base[(sessions.length)%3]) || `Sessão ${sessions.length+1}`;
+      sessions.push({ id:uid(), name, items:[], createdAt:Date.now() }); saveSessions(); renderSessions();
+    }
+    function fillRunSelect(){
+      const sel=$('#selectSessionRun'); sel.innerHTML = sessions.map(s=> `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+      updateRunButtons();
+    }
+    function updateRunButtons(){
+      $('#startSessionBtn').disabled = !sessions.length || runningSession;
+      $('#finishSessionBtn').disabled = !runningSession;
+      $('#shareSessionBtn').disabled = !runningSession;
+    }
+    $('#startSessionBtn').onclick = ()=>{
+      const id=$('#selectSessionRun').value; const sess=sessions.find(s=>s.id===id); if(!sess){ alert('Crie uma sessão primeiro.'); return; }
+      runningSession = { id:sess.id, name:sess.name, startedAt:Date.now(), items:sess.items.map(i=>({exId:i.exId, done:false})) };
+      renderRunArea(sess); updateRunButtons();
+    }
+    $('#finishSessionBtn').onclick = ()=>{
+      if(!runningSession) return;
+      // marcar dia no heatmap via criar um "marcador" leve: adiciona meta de sessão no local
+      // (já usamos histórico dos aparelhos; isso já marca também)
+      alert('Sessão concluída! Gere o resumo se quiser compartilhar.');
+      runningSession=null; $('#runSessionArea').innerHTML=''; updateRunButtons(); renderAnalytics();
+    }
+    function renderRunArea(sess){
+      const area=$('#runSessionArea'); area.innerHTML='';
+      if(!sess.items.length){ area.innerHTML='<div class="text-sm text-gray-400">Esta sessão ainda não tem aparelhos. Use "Editar" para adicionar.</div>'; return; }
+      sess.items.forEach((it,idx)=>{
+        const ex=byId(it.exId); const box=document.createElement('div'); box.className='p-3 bg-[#0b0c0e] border border-[color:var(--edge)] rounded flex items-center justify-between gap-2';
+        box.innerHTML=`<div class="truncate">${idx+1}. ${escapeHtml(ex?ex.name:'(removido)')}</div><div class="flex items-center gap-2"><button class="btn chip px-2 py-1 rounded text-xs" data-runlog="${it.exId}">+ log</button><button class="btn px-2 py-1 rounded border border-gray-600/60 text-gray-200 hover:bg-white/5 text-xs" data-rest="${it.exId}">⏱ descanso</button></div>`;
+        area.appendChild(box);
+        box.querySelector('[data-runlog]').onclick=()=> openLog(it.exId);
+        box.querySelector('[data-rest]').onclick=()=> startRestTimer((sessions.find(s=>s.id===sess.id)?.items[idx]?.rest)||90, ()=>{});
+      });
+      $('#finishSessionBtn').disabled=false; $('#shareSessionBtn').disabled=false;
+      $('#shareSessionBtn').onclick = ()=> shareSessionCanvas(sess);
+    }
+
+    // ---------- Analytics: Heatmap + PRs ----------
+    function renderAnalytics(){
+      drawHeatmap(); fillPRs();
+    }
+    function drawHeatmap(){
+      const canvas=$('#heatmapCanvas'); const ctx=canvas.getContext('2d');
+      const w=canvas.width=canvas.clientWidth*devicePixelRatio; const h=canvas.height=240*devicePixelRatio; ctx.setTransform(1,0,0,1,0,0); ctx.scale(devicePixelRatio,devicePixelRatio);
+      ctx.clearRect(0,0,w,h); ctx.fillStyle='#0b0c0e'; ctx.fillRect(0,0,canvas.clientWidth,240);
+      // coletar dias com treino (qualquer registro)
+      const map=new Map(); for(const ex of exercises){ for(const hst of ex.history||[]){ const d=new Date(hst.date); const key=`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; map.set(key,(map.get(key)||0)+1) } }
+      const now=new Date(); const year=now.getFullYear(); const month=now.getMonth(); const days=new Date(year, month+1, 0).getDate();
+      const cols=7; const cell=28; const offsetX=10; const offsetY=24;
+      // legend
+      ctx.fillStyle='rgba(255,255,255,.7)'; ctx.font='12px Oswald, sans-serif'; ctx.fillText(now.toLocaleString('pt-BR',{month:'long'}), offsetX, 14);
+      for(let d=1; d<=days; d++){
+        const date=new Date(year, month, d); const weekday=(date.getDay()+6)%7; // seg=0
+        const week=Math.floor((d + new Date(year, month,1).getDay()+6)%7 + (d-1)/7);
+        const x=offsetX + week*cell; const y=offsetY + weekday*cell;
+        const key=`${year}-${month}-${d}`; const v=map.get(key)||0;
+        const color = v===0 ? '#1f2937' : v<2 ? '#ef444422' : v<4 ? '#ef444444' : '#ef4444aa';
+        ctx.fillStyle=color; ctx.fillRect(x,y,22,22);
+      }
+      // streak
+      let streak=0; for(let i=0;i<365;i++){ const d=new Date(); d.setDate(d.getDate()-i); const key=`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; if(map.get(key)) streak++; else break; }
+      $('#streakBox').textContent = `Streak atual: ${streak} ${streak===1?'dia':'dias'}`;
+    }
+    function fillPRs(){
+      const prs=[]; for(const ex of exercises){ for(const h of ex.history||[]){ if(h.pr) prs.push({exId:ex.id, exName:ex.name, type:h.pr, date:h.date, weight:h.weight, reps:h.reps}) } }
+      prs.sort((a,b)=> b.date-a.date);
+      const list=$('#prsList'); list.innerHTML=''; const sel=$('#selectPR'); sel.innerHTML='';
+      prs.slice(0,10).forEach((p,i)=>{
+        const row=document.createElement('div'); row.className='flex items-center justify-between gap-2 px-3 py-2 rounded bg-[#0c0d10] border border-[color:var(--edge)]';
+        row.innerHTML=`<div class="flex items-center gap-2"><span class="badge-pr px-1.5 py-0.5 rounded text-[10px]">${p.type==='1rm'?'1RM':'Carga'}</span><div><div class="text-sm text-gray-100">${escapeHtml(p.exName)} • ${toDisplayKgLb(p.weight)}${p.reps?` • ${p.reps} reps`:''}</div><div class="text-xs text-gray-400">${formatDate(p.date)}</div></div></div>`;
+        list.appendChild(row);
+        sel.innerHTML += `<option value="${p.exId}:${p.date}">${escapeHtml(p.exName)} • ${p.type.toUpperCase()} • ${formatDay(p.date)}</option>`;
+      });
+    }
+
+    // ---------- Export/Import ----------
+    $('#backupBtn').onclick = ()=>{
+      const blob=new Blob([JSON.stringify(exercises,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download=`oldschoolgym-backup-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+    }
+    $('#importInput').addEventListener('change', async (e)=>{
+      const f=e.target.files?.[0]; if(!f) return;
+      try{ const txt=await f.text(); const data=JSON.parse(txt); if(!Array.isArray(data)) throw new Error('Formato inválido'); exercises=data; save(); renderMeus(); renderAnalytics(); alert('Importação concluída!') }catch(err){ alert('Falha ao importar.') } finally { e.target.value='' }
+    });
+    $('#exportCsvBtn').onclick = ()=>{
+      const rows = [['date','exercise','group','weight_kg','reps','rpe','rest_s','note','is_pr']];
+      for(const ex of exercises){
+        for(const h of ex.history||[]){
+          rows.push([new Date(h.date).toISOString(), ex.name, ex.group||'', h.weight, h.reps||'', h.rpe||'', h.restSec||'', (h.note||'').replace(/[\n,]/g,' '), h.pr?1:0]);
+        }
+      }
+      const csv = rows.map(r=> r.map(x=> `"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download=`oldschoolgym-${new Date().toISOString().slice(0,10)}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+    }
+    $('#resetBtn').onclick=()=>{ if(confirm('Apagar TODOS os dados?')){ exercises=[]; sessions=[]; save(); saveSessions(); renderMeus(); renderSessions(); renderAnalytics(); } }
+
+    // ---------- Compartilhar PR (canvas) ----------
+    function sharePRCard(exId){
+      const ex=byId(exId); if(!ex||!ex.history?.length){ alert('Sem PR para compartilhar.'); return; }
+      const pr=[...ex.history].reverse().find(h=>h.pr);
+      if(!pr){ alert('Sem PR para este aparelho ainda.'); return; }
+      generatePRCanvas(ex, pr);
+    }
+    $('#sharePRBtn').onclick = ()=>{
+      const val=$('#selectPR').value; if(!val) return; const [exId, dateStr]=val.split(':'); const ex=byId(exId); const pr=ex?.history?.find(h=> String(h.date)===dateStr); if(ex && pr) generatePRCanvas(ex, pr);
+    }
+    function generatePRCanvas(ex, pr){
+      const W=800, H=420; const canvas=document.createElement('canvas'); canvas.width=W; canvas.height=H; const ctx=canvas.getContext('2d');
+      // bg
+      const grad=ctx.createLinearGradient(0,0,W,H); grad.addColorStop(0,'#0b0b0c'); grad.addColorStop(1,'#111214'); ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+      // frame
+      ctx.strokeStyle='#ef4444'; ctx.globalAlpha=.25; ctx.lineWidth=6; ctx.strokeRect(12,12,W-24,H-24); ctx.globalAlpha=1;
+      // title
+      ctx.fillStyle='#fde68a'; ctx.font='bold 54px Bebas Neue, Oswald, sans-serif'; ctx.fillText('OLD SCHOOL PR', 36, 86);
+      ctx.fillStyle='#f3f4f6'; ctx.font='28px Oswald, sans-serif'; ctx.fillText(ex.name, 36, 130);
+      // value
+      const val = pr.pr==='1rm' ? `1RM Est.: ${toDisplayKgLb(Math.round(estimate1RM(pr.weight, pr.reps||1)||pr.weight))}` : `Carga: ${toDisplayKgLb(pr.weight)}`;
+      ctx.font='36px Oswald, sans-serif'; ctx.fillStyle='#f3f4f6'; ctx.fillText(val, 36, 176);
+      ctx.font='18px Oswald, sans-serif'; ctx.fillStyle='#9ca3af'; ctx.fillText(new Date(pr.date).toLocaleString('pt-BR'), 36, 204);
+      // badge
+      ctx.fillStyle='#f59e0b'; ctx.fillRect(W-180, 40, 120, 36); ctx.fillStyle='#111214'; ctx.font='bold 20px Oswald'; ctx.fillText(pr.pr==='1rm'?'PR 1RM':'PR CARGA', W-170, 66);
+      // photo placeholder circle
+      ctx.save(); ctx.beginPath(); ctx.arc(W-120, H-120, 64, 0, Math.PI*2); ctx.closePath(); ctx.clip();
+      // draw placeholder
+      const pImg = new Image(); pImg.onload = ()=>{ ctx.drawImage(pImg, W-184, H-184, 128, 128); finish() }; pImg.onerror=()=> finish();
+      pImg.src = ex.photo || svgPlaceholder(ex.name);
+      function finish(){
+        ctx.restore();
+        // download
+        const url=canvas.toDataURL('image/png'); const a=document.createElement('a'); a.href=url; a.download=`PR-${ex.name.replace(/\s+/g,'_')}.png`; document.body.appendChild(a); a.click(); a.remove();
+      }
+    }
+
+    // ---------- Acessibilidade ----------
+    function applyAccessibility(){
+      document.documentElement.classList.toggle('high-contrast', prefs.contrast);
+      document.documentElement.classList.toggle('large-font', prefs.large);
+      $('#toggleContrast').checked = !!prefs.contrast; $('#toggleLargeFont').checked = !!prefs.large;
+    }
+    $('#toggleContrast').onchange = (e)=>{ prefs.contrast = e.target.checked; savePrefs(); applyAccessibility(); }
+    $('#toggleLargeFont').onchange = (e)=>{ prefs.large = e.target.checked; savePrefs(); applyAccessibility(); }
+
+    // ---------- Busca & filtros ----------
+    $('#filterGroup').onchange = (e)=>{ filterGroup=e.target.value||''; renderMeus() }
+    $('#sortBy').onchange = (e)=>{ sortBy=e.target.value; renderMeus() }
+    $('#globalSearch').oninput = (e)=>{ searchTerm=(e.target.value||'').trim().toLowerCase(); renderMeus() }
+
+    // ---------- Tabs ----------
+    function activateTab(tab){
+      currentTab=tab;
+      document.querySelectorAll('.tab').forEach(t=> t.setAttribute('data-active', String(t.getAttribute('data-tab')===tab)));
+      $('#viewMeus').classList.toggle('hidden', tab!=='meus');
+      $('#controls').classList.toggle('hidden', tab!=='meus');
+      $('#viewBiblioteca').classList.toggle('hidden', tab!=='biblioteca');
+      $('#viewSessoes').classList.toggle('hidden', tab!=='sessoes');
+      $('#viewAnalise').classList.toggle('hidden', tab!=='analise');
+      if(tab==='analise') renderAnalytics();
+      if(tab==='sessoes') renderSessions();
+    }
+    document.querySelectorAll('.tab').forEach(t=> t.addEventListener('click', ()=> activateTab(t.getAttribute('data-tab')) ));
+    $('#browseLibCTA').onclick = ()=> activateTab('biblioteca');
+
+    // ---------- Onboarding ----------
+    function showOnboardingIfNeeded(){
+      if(onboardDone) return;
+      openModal('onboard');
+    }
+    $('#finishOnboard').onclick = ()=>{
+      const unit = document.querySelector('input[name="ob_unit"]:checked')?.value || 'kg';
+      const goals=[...document.querySelectorAll('.ob_goal:checked')].map(i=>i.value);
+      const fav=[...document.querySelectorAll('.ob_group:checked')].map(i=>i.value);
+      prefs.unit = unit; prefs.goals=goals; prefs.favGroups=fav; savePrefs();
+      // seed data
+      const seeds = [
+        {name:'Supino reto', group:'Peito'},
+        {name:'Puxada frente', group:'Costas'},
+        {name:'Agachamento livre', group:'Pernas'},
+      ];
+      seeds.forEach(s=>{
+        const ex={ id:uid(), name:s.name, group:s.group, photo:svgPlaceholder(s.name), plan:'linear', history:[], createdAt:Date.now() };
+        exercises.push(ex);
+      });
+      save();
+      onboardDone=true; saveOnboard(); closeModal('onboard'); renderMeus();
+    }
+
+    // ---------- Atalhos ----------
+    document.addEventListener('keydown', (e)=>{
+      if(e.key==='/'){ e.preventDefault(); $('#globalSearch').focus(); return; }
+      if(e.key==='n'){ e.preventDefault(); resetAddForm(); openModal('modalAdd'); return; }
+      if(e.key==='l'){ e.preventDefault(); if(exercises.length){ const sorted=[...exercises].sort((a,b)=> (b.history?.[b.history.length-1]?.date||b.createdAt) - (a.history?.[a.history.length-1]?.date||a.createdAt)); openLog(sorted[0].id) } return; }
+      if(e.key==='g'){ e.preventDefault(); const opts=[...new Set(exercises.map(e=>e.group).filter(Boolean))]; if(!opts.length) return; const idx = Math.max(0, opts.indexOf(filterGroup)); const next = opts[(idx+1)%opts.length]; filterGroup=next; $('#filterGroup').value=next; renderMeus(); return; }
+      if(e.key==='s'){ e.preventDefault(); // iniciar/pausar descanso
+        if(!document.getElementById('modalRest').classList.contains('hidden')){ if(restTimer.running) $('#restPause').click(); else $('#restStart').click(); }
+        else { startRestTimer(90, ()=>{}); }
+      }
+    });
+
+    // ---------- Utils ----------
+    function cssEscape(id){ return id.replace(/[^a-zA-Z0-9_-]/g,'_') }
+
+    // ---------- Init ----------
+    load();
+    applyAccessibility();
+    updateUnitUI();
+    renderMeus();
+    renderLibrary();
+    renderSessions();
+    // Garante que o botão Editar funcione mesmo em sessões recém-criadas
+    (function(){
+      const list = document.getElementById('sessionsList');
+      if(list && !list.dataset.boundEdit){
+        list.dataset.boundEdit = '1';
+        list.addEventListener('click', (e)=>{
+          const editBtn = e.target.closest('[data-edit]');
+          if(editBtn){
+            e.preventDefault();
+            const id = editBtn.getAttribute('data-edit');
+            editSession(id);
+          }
+        });
+      }
+    })();
+    renderAnalytics();
+    showOnboardingIfNeeded();
+
+    // Redesenhar mini-gráficos ao redimensionar
+    let resizeTimer; window.addEventListener('resize', ()=>{ clearTimeout(resizeTimer); resizeTimer=setTimeout(()=> renderMeus(), 200) });
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98024c810209f1fb',t:'MTc1ODA0NTk5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
