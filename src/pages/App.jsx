@@ -269,6 +269,7 @@ export default function AppPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [logEx, setLogEx] = useState(null); // exercise being logged
   const [chartEx, setChartEx] = useState(null);
+  const norm = (s) => (s || '').trim().toLowerCase();
 
   const groups = useMemo(() => Array.from(new Set(exercises.map((e) => e.group).filter(Boolean))).sort(), [exercises]);
 
@@ -320,38 +321,72 @@ export default function AppPage() {
   }
 
   const [addOpen, setAddOpen] = useState(false);
-  const [addForm, setAddForm] = useState({ name: '', group: '', plan: 'linear', start: '', photo: '' });
+  const [addMode, setAddMode] = useState('add'); // 'add' | 'edit'
+  const [editId, setEditId] = useState(null);
+  const [addForm, setAddForm] = useState({ name: '', group: '', plan: 'linear', start: '', photo: '', removePhoto: false });
   const fileRef = useRef(null);
+  const nameInputRef = useRef(null);
 
   function openAddModal() {
-    setAddForm({ name: '', group: '', plan: 'linear', start: '', photo: '' });
+    setAddMode('add');
+    setEditId(null);
+    setAddForm({ name: '', group: '', plan: 'linear', start: '', photo: '', removePhoto:false });
     setAddOpen(true);
   }
   function closeAddModal() {
     setAddOpen(false);
   }
+  function openEditModal(ex) {
+    setAddMode('edit');
+    setEditId(ex.id);
+    setAddForm({ name: ex.name || '', group: ex.group || '', plan: ex.plan || 'linear', start: '', photo: ex.photo || '', removePhoto:false });
+    setAddOpen(true);
+  }
   async function onPickPhoto(e) {
     const f = e.target.files?.[0];
     if (!f) { setAddForm((p)=> ({...p, photo:''})); return; }
     const dataUrl = await new Promise((res, rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsDataURL(f); });
-    setAddForm((p)=> ({...p, photo: String(dataUrl)}));
+    setAddForm((p)=> ({...p, photo: String(dataUrl), removePhoto:false }));
   }
+  // Foco automático no campo Nome quando o modal abre
+  useEffect(() => {
+    if (addOpen) {
+      setTimeout(() => nameInputRef.current && nameInputRef.current.focus(), 0);
+    }
+  }, [addOpen]);
   function saveAddForm() {
-    const name = addForm.name.trim(); if (!name) { alert('Informe o nome do aparelho.'); return; }
-    const id = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
-    const createdAt = Date.now();
-    const ex = {
-      id,
-      name,
-      group: addForm.group.trim() || undefined,
-      photo: addForm.photo || svgPlaceholder(name),
-      plan: addForm.plan || 'linear',
-      history: [],
-      createdAt,
-    };
-    const start = parseFloat(addForm.start);
-    if (!isNaN(start)) ex.history.push({ date: createdAt, weight: start, note: 'Carga inicial' });
-    saveExercises([ex, ...exercises]);
+    const name = addForm.name.trim();
+    const groupVal = addForm.group.trim();
+    if (!name || !groupVal) return; // validação inline; botão Salvar já fica desabilitado
+    // Duplicidade: mesmo nome+grupo (case-insensitive), desconsiderando o próprio em edição
+    const dup = exercises.some((e) => norm(e.name) === norm(name) && norm(e.group) === norm(groupVal) && (addMode === 'add' || e.id !== editId));
+    if (dup) return;
+    if (addMode === 'add') {
+      const id = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+      const createdAt = Date.now();
+      const ex = {
+        id,
+        name,
+        group: groupVal || undefined,
+        photo: addForm.photo || svgPlaceholder(name),
+        plan: addForm.plan || 'linear',
+        history: [],
+        createdAt,
+      };
+      const start = parseFloat(addForm.start);
+      if (!isNaN(start)) ex.history.push({ date: createdAt, weight: start, note: 'Carga inicial' });
+      saveExercises([ex, ...exercises]);
+    } else {
+      const list = exercises.slice();
+      const ex = list.find((e) => e.id === editId);
+      if (!ex) { setAddOpen(false); return; }
+      ex.name = name;
+      ex.group = groupVal || undefined;
+      ex.plan = addForm.plan || 'linear';
+      if (addForm.removePhoto) ex.photo = svgPlaceholder(name);
+      else if (addForm.photo) ex.photo = addForm.photo;
+      saveExercises(list);
+    }
     setAddOpen(false);
   }
 
@@ -815,6 +850,7 @@ export default function AppPage() {
           <div className="flex items-center gap-2">
             <button className="btn bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-md" onClick={() => openLog(ex)}>Registrar</button>
             <button className="btn px-3 py-1.5 rounded-md border border-gray-600/60 text-gray-200 hover:bg-white/5" onClick={() => setChartEx(ex)}>Gráfico</button>
+            <button className="btn px-3 py-1.5 rounded-md border border-gray-600/60 text-gray-200 hover:bg-white/5" onClick={() => openEditModal(ex)}>Editar</button>
             <button className="btn gold px-3 py-1.5 rounded-md hover:bg-yellow-600/10" onClick={() => shareExerciseLatestPR(ex)}>Compartilhar PR</button>
             <button className="btn px-3 py-1.5 rounded-md border border-gray-600/60 text-red-200 hover:bg-red-600/10" onClick={() => removeExercise(ex.id)}>Remover</button>
           </div>
@@ -860,7 +896,6 @@ export default function AppPage() {
                 <button className={`btn px-2 py-0.5 rounded border ${prefs.unit==='lb'?'bg-white/5 text-white':'border-gray-600/60 text-gray-200 hover:bg-white/5'}`} onClick={() => savePrefs({ ...prefs, unit: 'lb' })}>LB</button>
               </div>
               <div className="chip px-2 py-1 rounded text-xs">{exercises.length} aparelhos</div>
-              <button className="btn ok px-3 py-1.5 rounded-md hover:bg-green-600/10" onClick={addExerciseQuick}>+ Adicionar</button>
             </div>
           </div>
           <div className="mt-4">
@@ -1169,7 +1204,7 @@ export default function AppPage() {
         <div className="fixed inset-0 z-[75] modal-backdrop flex items-end sm:items-center justify-center p-4" role="dialog" aria-label="Adicionar Aparelho">
           <div className="card w-full max-w-lg overflow-hidden">
             <div className="p-5 md:p-6 border-b border-[color:var(--edge)] flex items-center justify-between">
-              <h3 className="title-font text-2xl">Adicionar Aparelho</h3>
+              <h3 className="title-font text-2xl">{addMode==='add' ? 'Adicionar Aparelho' : 'Editar Aparelho'}</h3>
               <button className="btn text-gray-300 hover:text-white focus-vis" onClick={closeAddModal}>✕</button>
             </div>
             <div className="p-5 md:p-6 space-y-4">
@@ -1185,19 +1220,39 @@ export default function AppPage() {
                   Selecionar foto
                   <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPickPhoto} />
                 </label>
+                {(addMode==='edit' || addForm.photo) && (
+                  <button
+                    type="button"
+                    className="btn px-3 py-2 rounded-md border border-red-600/60 text-red-200 hover:bg-red-600/10 focus-vis"
+                    onClick={()=> setAddForm((p)=> ({...p, photo:'', removePhoto: addMode==='edit' ? true : false }))}
+                  >
+                    Remover foto
+                  </button>
+                )}
               </div>
               <div>
                 <label className="block text-sm text-gray-300 mb-1">Nome do aparelho</label>
-                <input value={addForm.name} onChange={(e)=> setAddForm((p)=> ({...p, name:e.target.value}))} type="text" placeholder="Ex: Supino reto" className="focus-vis w-full px-3 py-2 rounded-md bg-[#0c0d0f] border border-[color:var(--edge)]" />
+                <input ref={nameInputRef} value={addForm.name} onChange={(e)=> setAddForm((p)=> ({...p, name:e.target.value}))} type="text" placeholder="Ex: Supino reto" className="focus-vis w-full px-3 py-2 rounded-md bg-[#0c0d0f] border border-[color:var(--edge)]" />
+                {!addForm.name.trim() && (<div className="text-xs text-red-400 mt-1">Informe o nome do aparelho.</div>)}
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm text-gray-300 mb-1">Carga inicial (kg)</label>
-                  <input value={addForm.start} onChange={(e)=> setAddForm((p)=> ({...p, start:e.target.value}))} type="number" inputMode="decimal" className="focus-vis ghost-input w-full px-3 py-2 rounded-md bg-[#0c0d0f] border border-[color:var(--edge)]" placeholder="Opcional" />
-                </div>
+                {addMode==='add' && (
+                  <div>
+                    <label className="block text-sm text-gray-300 mb-1">Carga inicial (kg)</label>
+                    <input value={addForm.start} onChange={(e)=> setAddForm((p)=> ({...p, start:e.target.value}))} type="number" inputMode="decimal" className="focus-vis ghost-input w-full px-3 py-2 rounded-md bg-[#0c0d0f] border border-[color:var(--edge)]" placeholder="Opcional" />
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm text-gray-300 mb-1">Grupo muscular</label>
-                  <input value={addForm.group} onChange={(e)=> setAddForm((p)=> ({...p, group:e.target.value}))} type="text" className="focus-vis w-full px-3 py-2 rounded-md bg-[#0c0d0f] border border-[color:var(--edge)]" placeholder="Ex: Peito" />
+                 <input value={addForm.group} onChange={(e)=> setAddForm((p)=> ({...p, group:e.target.value}))} type="text" className="focus-vis w-full px-3 py-2 rounded-md bg-[#0c0d0f] border border-[color:var(--edge)]" placeholder="Ex: Peito" />
+                  {!addForm.group.trim() && (<div className="text-xs text-red-400 mt-1">Informe o grupo muscular.</div>)}
+                  {(() => {
+                    const nameOk = !!addForm.name.trim();
+                    const groupOk = !!addForm.group.trim();
+                    if (!nameOk || !groupOk) return null;
+                    const dup = exercises.some((e) => norm(e.name) === norm(addForm.name) && norm(e.group) === norm(addForm.group) && (addMode === 'add' || e.id !== editId));
+                    return dup ? (<div className="text-xs text-red-400 mt-1">Já existe um aparelho com esse nome neste grupo.</div>) : null;
+                  })()}
                 </div>
               </div>
               <div>
@@ -1211,7 +1266,14 @@ export default function AppPage() {
             </div>
             <div className="p-5 md:p-6 border-t border-[color:var(--edge)] flex items-center justify-end gap-3">
               <button className="btn px-4 py-2 rounded-md border border-gray-600/60 text-gray-300 hover:bg-white/5 focus-vis" onClick={closeAddModal}>Cancelar</button>
-              <button className="btn bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-md focus-vis" onClick={saveAddForm}>Salvar</button>
+              {(() => { 
+                const nameOk = !!addForm.name.trim();
+                const groupOk = !!addForm.group.trim();
+                const dup = nameOk && groupOk && exercises.some((e) => norm(e.name) === norm(addForm.name) && norm(e.group) === norm(addForm.group) && (addMode === 'add' || e.id !== editId));
+                const canSave = nameOk && groupOk && !dup;
+                return (
+                <button className={`btn bg-red-600 text-white px-4 py-2 rounded-md focus-vis ${canSave? 'hover:bg-red-500' : 'opacity-50 cursor-not-allowed'}`} onClick={saveAddForm} disabled={!canSave}>Salvar</button>
+                ); })()}
             </div>
           </div>
         </div>
