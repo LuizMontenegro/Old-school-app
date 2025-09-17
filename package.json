@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --open app.html",
-    "build": "vite build",
+    "build": "node ./node_modules/vite/bin/vite.js build",
     "preview": "vite preview --host 127.0.0.1 --port 4173"
   },
   "keywords": [],
